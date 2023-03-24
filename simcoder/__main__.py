@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 
 from loaders import UnlabelledImageFolder
 from models import load_model
+from pref import log_timings
 
 logging.basicConfig(level=logging.INFO)
 
@@ -18,27 +19,26 @@ logging.basicConfig(level=logging.INFO)
 def save_features(arr: np.array, path: Path, format: str) -> None:
     path = path
 
-    match format:
-        case "cvs":
-            np.savetxt(path, arr, delimiter=",")
-        case "npy":
-            np.save(path, arr)
-        case "mat":
-            savemat(path, {"features": arr, "label": "embeddings"})
+    if format == "cvs":
+        np.savetxt(path, arr, delimiter=",")
+    elif format == "npy":
+        np.save(path, arr)
+    elif format == "mat":
+        savemat(path, {"features": arr, "label": "embeddings"})
 
 
-def encode_images(model, preprocess, input_dir: Path, batch_size: int) -> np.array:
+def encode_images(model, preprocess, input_dir: Path, batch_size: int, device: str) -> np.array:
     dataset = UnlabelledImageFolder(input_dir, preprocess)
-    loader = DataLoader(dataset, batch_size, num_workers=0)
-    features = [model(xs) for xs in tqdm(loader)]
-    return torch.cat(features).numpy()
+    loader = DataLoader(dataset, batch_size, num_workers=8)
+    features = [model(xs.to(device)).detach().cpu().numpy() for xs in tqdm(loader)]
+    return np.concatenate(features)
 
 
 @click.command()
 @click.argument("input_dir", type=click.Path(exists=False))
 @click.argument("output_path", type=click.Path(exists=False))
-@click.argument("model", type=click.STRING)
-@click.argument("batch_size", type=click.STRING, default=64)
+@click.argument("model_name", type=click.STRING)
+@click.argument("batch_size", type=click.INT, default=64)
 @click.option("--dirs", "-d", is_flag=True, help="Expect a directory of directories.")
 @click.option(
     "--format",
@@ -46,6 +46,7 @@ def encode_images(model, preprocess, input_dir: Path, batch_size: int) -> np.arr
     default="csv",
     help="output format",
 )
+@log_timings
 def encode(input_dir, output_path, model_name, batch_size, dirs, format):
     logging.info("Welcome to Simcoder.")
 
@@ -60,12 +61,18 @@ def encode(input_dir, output_path, model_name, batch_size, dirs, format):
     # get the model from torchvision
     logging.info(f"Loading {model_name} model.")
     model, preprocess = load_model(model_name)
+    logging.info(model)
+
+    # setup the pytorch device
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    logging.info(f"Running on device: {device}")
+    model.to(device)
 
     # iterate over the input dirs, encoding and outputting to disk
     for image_dir in image_dirs:
-        logging.info(f"Encoding {input_dir}")
-        features = encode_images(model, preprocess, input_dir, batch_size)
-        filepath = (output_path / image_dir.stem).with_suffix(f".{format}")
+        logging.info(f"Encoding {image_dir}")
+        features = encode_images(model, preprocess, image_dir, batch_size, device)
+        filepath = Path(output_path, image_dir.stem).with_suffix(f".{format}")
         logging.info(f"Saving embeddings to {filepath}.")
         save_features(features, filepath, format)
 
