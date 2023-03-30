@@ -39,11 +39,22 @@ docker_run_tars_interactive:
 		-v /scratch/dm236/mf_embeddings:/output \
 		-it $(DOCKER_IMAGE_NAME):latest
 
+docker_run_dada_interactive:
+	docker run \
+		--rm \
+		--gpus all \
+		--name $(LOCAL_USER)-$(DOCKER_IMAGE_NAME) \
+		--ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
+		-v /home/$(LOCAL_USER)/development/simcoder-pytorch:/workspace/$(PROJECT_NAME) \
+		-v /data/mf/images:/input \
+		-v /data:/output \
+		-it $(DOCKER_IMAGE_NAME):latest
+
 run_batch:
 	docker run \
 		--rm \
-		-u $(LOCAL_UID):$(LOCAL_GID) \
 		--gpus all \
+		-u $(LOCAL_UID):$(LOCAL_GID) \
 		--name $(LOCAL_USER)-$(DOCKER_IMAGE_NAME) \
 		-v /home/$(LOCAL_USER)/datasets/mf/images:/input \
 		-v /home/$(LOCAL_USER)/results/similarity:/output \

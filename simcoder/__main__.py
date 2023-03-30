@@ -17,19 +17,16 @@ logging.basicConfig(level=logging.INFO)
 
 
 def save_features(arr: np.array, path: Path, format: str) -> None:
-    path = path
-
-    if format == "cvs":
+    if format == "csv":
         np.savetxt(path, arr, delimiter=",")
     elif format == "npy":
         np.save(path, arr)
     elif format == "mat":
         savemat(path, {"features": arr, "label": "embeddings"})
 
-
 def encode_images(model, preprocess, input_dir: Path, batch_size: int, device: str) -> np.array:
     dataset = UnlabelledImageFolder(input_dir, preprocess)
-    loader = DataLoader(dataset, batch_size, num_workers=8)
+    loader = DataLoader(dataset, batch_size, num_workers=128)
     features = [model(xs.to(device)).detach().cpu().numpy() for xs in tqdm(loader)]
     return np.concatenate(features)
 
@@ -49,6 +46,8 @@ def encode_images(model, preprocess, input_dir: Path, batch_size: int, device: s
 @log_timings
 def encode(input_dir, output_path, model_name, batch_size, dirs, format):
     logging.info("Welcome to Simcoder.")
+
+    Path(output_path).mkdir()
 
     # find all the directories to look for images in
     if dirs:

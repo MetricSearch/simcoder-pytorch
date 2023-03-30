@@ -27,5 +27,5 @@ def load_alexnet_fc6() -> nn.Module:
 
 def load_model(model_name: str) -> nn.Module:
     if model_name == "alexnet_fc6":
-        model, preprocess = load_alexnet_fc6()
+        model, preprocess = load_alexnet()
     return model, preprocess
