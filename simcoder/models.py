@@ -5,10 +5,8 @@ from torchvision.models import AlexNet_Weights
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
 
 
-def load_alexnet() -> nn.Module:
-    model = torch.hub.load("pytorch/vision:v0.10.0", "alexnet", weights=AlexNet_Weights.DEFAULT)
-    model.eval()
-    preprocess = Compose(
+def get_image_net_preprocessor():
+    return Compose(
         [
             Resize(256),
             CenterCrop(224),
@@ -16,6 +14,14 @@ def load_alexnet() -> nn.Module:
             Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
     )
+
+
+def load_alexnet() -> nn.Module:
+    model = torch.hub.load(
+        "pytorch/vision:v0.10.0", "alexnet", weights=AlexNet_Weights.DEFAULT
+    )
+    model.eval()
+    preprocess = get_image_net_preprocessor()
     return model, preprocess
 
 
@@ -25,7 +31,18 @@ def load_alexnet_fc6() -> nn.Module:
     return model, preprocess
 
 
+def load_resnet50_softmax() -> nn.Module:
+    model = torch.hub.load("pytorch/vision:v0.10.0", "resnet18", pretrained=True)
+    model.eval()
+    preprocess = get_image_net_preprocessor()
+    return model, preprocess
+
+
 def load_model(model_name: str) -> nn.Module:
     if model_name == "alexnet_fc6":
-        model, preprocess = load_alexnet()
+        model, preprocess = load_alexnet_fc6()
+    elif model_name == "resnet50_softmax":
+        model, preprocess = load_resnet50_softmax()
+    else:
+        raise ValueError("Unknown Model Name")
     return model, preprocess
