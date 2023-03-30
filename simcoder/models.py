@@ -31,10 +31,16 @@ def load_alexnet_fc6() -> nn.Module:
     return model, preprocess
 
 
-def load_resnet50_softmax() -> nn.Module:
+def load_resnet50() -> nn.Module:
     model = torch.hub.load("pytorch/vision:v0.10.0", "resnet18", pretrained=True)
     model.eval()
     preprocess = get_image_net_preprocessor()
+    return model, preprocess
+
+
+def load_resnet50_softmax() -> nn.Module:
+    model, preprocess = load_resnet50()
+    model = nn.Sequential(model, nn.Softmax(dim=1))
     return model, preprocess
 
 
