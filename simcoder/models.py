@@ -1,3 +1,7 @@
+from typing import List
+import inspect
+import sys
+
 import torch
 import torch.nn as nn
 
@@ -25,6 +29,10 @@ def load_alexnet() -> nn.Module:
     return model, preprocess
 
 
+def load_alexnet_softmax() -> nn.Module:
+    raise NotImplementedError()
+
+
 def load_alexnet_fc6() -> nn.Module:
     model, preprocess = load_alexnet()
     model.classifier = model.classifier[:2]
@@ -44,11 +52,16 @@ def load_resnet50_softmax() -> nn.Module:
     return model, preprocess
 
 
-def load_model(model_name: str) -> nn.Module:
-    if model_name == "alexnet_fc6":
-        model, preprocess = load_alexnet_fc6()
-    elif model_name == "resnet50_softmax":
-        model, preprocess = load_resnet50_softmax()
-    else:
-        raise ValueError("Unknown Model Name")
+def get_loader_names() -> List[str]:
+    def is_loader(name, obj):
+        return inspect.isfunction(obj) and name.startswith('load') and obj.__module__ == __name__
+    return [name for name, obj in inspect.getmembers(sys.modules[__name__]) if is_loader(name, obj)]
+
+
+def get_model(model_name: str) -> nn.Module:
+    loader_name = f"load_{model_name}"
+    if loader_name not in get_loader_names():
+        raise ValueError(f"Model {model_name} not found.")
+    loader = eval(loader_name)
+    model, preprocess = loader()
     return model, preprocess
