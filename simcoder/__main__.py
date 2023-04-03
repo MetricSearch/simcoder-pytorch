@@ -3,6 +3,7 @@ import time
 import click
 from encode import encode
 from show import show
+from list_models import list_models
 
 # let's output the info
 logging.basicConfig(level=logging.INFO, format='%(message)')
@@ -15,6 +16,7 @@ def cli():
 
 cli.add_command(encode)
 cli.add_command(show)
+cli.add_command(list_models)
 
 
 if __name__ == "__main__":

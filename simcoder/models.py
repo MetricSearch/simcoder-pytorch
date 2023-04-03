@@ -67,3 +67,9 @@ def get_model(model_name: str) -> nn.Module:
     loader = eval(loader_name)
     model, preprocess = loader()
     return model, preprocess
+
+
+def get_availible_models() -> List[str]:
+    loader_names = get_loader_names()
+    model_names = [n[6:] for n in loader_names]
+    return model_names
