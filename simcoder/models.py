@@ -30,7 +30,9 @@ def load_alexnet() -> nn.Module:
 
 
 def load_alexnet_softmax() -> nn.Module:
-    raise NotImplementedError()
+    model, preprocess = load_alexnet()
+    model = nn.Sequential(model, nn.Softmax(dim=1))
+    return model, preprocess
 
 
 def load_alexnet_fc6() -> nn.Module:
