@@ -71,5 +71,5 @@ def get_model(model_name: str) -> nn.Module:
 
 def get_availible_models() -> List[str]:
     loader_names = get_loader_names()
-    model_names = [n[6:] for n in loader_names]
+    model_names = [n[5:] for n in loader_names]
     return model_names
