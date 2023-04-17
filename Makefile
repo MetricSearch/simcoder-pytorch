@@ -21,9 +21,11 @@ docker_image:
 
 docker_run_elnuevo_interactive:
 	docker run \
+		--rm \
 		--gpus all \
 		--name $(LOCAL_USER)-$(DOCKER_IMAGE_NAME) \
-		-v /home/$(LOCAL_USER)/development/simcoder:/workspace/${PROJECT_NAME} \
+		--ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
+		-v /home/$(LOCAL_USER)/development/${PROJECT_NAME}:/workspace/${PROJECT_NAME} \
 		-v /home/$(LOCAL_USER)/datasets/mf/images:/input \
 		-v /home/$(LOCAL_USER)/results/similarity:/output \
 		-it $(DOCKER_IMAGE_NAME):latest
