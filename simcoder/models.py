@@ -8,6 +8,7 @@ import torch.nn as nn
 from torchvision.models import AlexNet_Weights
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
 
+import resnet as rn
 
 def get_image_net_preprocessor():
     return Compose(
@@ -51,6 +52,15 @@ def load_resnet50() -> nn.Module:
 def load_resnet50_softmax() -> nn.Module:
     model, preprocess = load_resnet50()
     model = nn.Sequential(model, nn.Softmax(dim=1))
+    return model, preprocess
+
+
+def load_simclr2_r50_2x_sk1() -> nn.Module:
+    preprocess = get_image_net_preprocessor()
+    pth_path = '/models/r50_2x_sk1.pth'
+    model, _ = rn.get_resnet(*rn.name_to_params(pth_path))
+    model.load_state_dict(torch.load(pth_path)['resnet'])
+    model.eval()
     return model, preprocess
 
 

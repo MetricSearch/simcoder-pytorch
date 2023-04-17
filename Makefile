@@ -27,6 +27,7 @@ docker_run_elnuevo_interactive:
 		--ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
 		-v /home/$(LOCAL_USER)/development/${PROJECT_NAME}:/workspace/${PROJECT_NAME} \
 		-v /home/$(LOCAL_USER)/datasets/mf/images:/input \
+		-v /home/$(LOCAL_USER)/models:/models \
 		-v /home/$(LOCAL_USER)/results/similarity:/output \
 		-it $(DOCKER_IMAGE_NAME):latest
 
