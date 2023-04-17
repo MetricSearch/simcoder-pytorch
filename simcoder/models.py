@@ -10,6 +10,7 @@ from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normal
 
 import resnet as rn
 
+
 def get_image_net_preprocessor():
     return Compose(
         [
@@ -56,18 +57,32 @@ def load_resnet50_softmax() -> nn.Module:
 
 
 def load_simclr2_r50_2x_sk1() -> nn.Module:
+    # load in the model
     preprocess = get_image_net_preprocessor()
-    pth_path = '/models/r50_2x_sk1.pth'
+    pth_path = "/models/r50_2x_sk1.pth"
     model, _ = rn.get_resnet(*rn.name_to_params(pth_path))
-    model.load_state_dict(torch.load(pth_path)['resnet'])
+    model.load_state_dict(torch.load(pth_path)["resnet"])
     model.eval()
+
+    # remove the projection head
+    model.fc = nn.Identity()
+
     return model, preprocess
 
 
 def get_loader_names() -> List[str]:
     def is_loader(name, obj):
-        return inspect.isfunction(obj) and name.startswith('load') and obj.__module__ == __name__
-    return [name for name, obj in inspect.getmembers(sys.modules[__name__]) if is_loader(name, obj)]
+        return (
+            inspect.isfunction(obj)
+            and name.startswith("load")
+            and obj.__module__ == __name__
+        )
+
+    return [
+        name
+        for name, obj in inspect.getmembers(sys.modules[__name__])
+        if is_loader(name, obj)
+    ]
 
 
 def get_model(model_name: str) -> nn.Module:
