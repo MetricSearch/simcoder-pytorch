@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from torchvision.models import AlexNet_Weights
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
 
-from simcoder.simclr2 import get_resnet, name_to_params
+from .simclr2 import get_resnet, name_to_params
 
 def get_image_net_preprocessor():
     return Compose(
@@ -65,6 +65,12 @@ def load_simclr2_r50_2x_sk1() -> nn.Module:
     model.fc = nn.Identity()
 
     return model, preprocess
+
+
+def load_dino2() -> nn.Module:
+    dinov2_vits14 = torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14')
+    preprocess = get_image_net_preprocessor()
+    return dinov2_vits14, preprocess
 
 
 def get_loader_names() -> List[str]:
