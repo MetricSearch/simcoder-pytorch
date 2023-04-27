@@ -4,12 +4,12 @@ import sys
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from torchvision.models import AlexNet_Weights
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
 
-import resnet as rn
-
+from simcoder.simclr2 import get_resnet, name_to_params
 
 def get_image_net_preprocessor():
     return Compose(
@@ -26,7 +26,6 @@ def load_alexnet() -> nn.Module:
     model = torch.hub.load(
         "pytorch/vision:v0.10.0", "alexnet", weights=AlexNet_Weights.DEFAULT
     )
-    model.eval()
     preprocess = get_image_net_preprocessor()
     return model, preprocess
 
@@ -45,7 +44,6 @@ def load_alexnet_fc6() -> nn.Module:
 
 def load_resnet50() -> nn.Module:
     model = torch.hub.load("pytorch/vision:v0.10.0", "resnet18", pretrained=True)
-    model.eval()
     preprocess = get_image_net_preprocessor()
     return model, preprocess
 
@@ -60,9 +58,8 @@ def load_simclr2_r50_2x_sk1() -> nn.Module:
     # load in the model
     preprocess = get_image_net_preprocessor()
     pth_path = "/models/r50_2x_sk1.pth"
-    model, _ = rn.get_resnet(*rn.name_to_params(pth_path))
+    model, _ = get_resnet(*name_to_params(pth_path))
     model.load_state_dict(torch.load(pth_path)["resnet"])
-    model.eval()
 
     # remove the projection head
     model.fc = nn.Identity()

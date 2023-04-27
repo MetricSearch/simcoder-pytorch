@@ -27,7 +27,8 @@ def save_features(arr: np.array, path: Path, format: str) -> None:
 def encode_images(model, preprocess, input_dir: Path, batch_size: int, device: str) -> np.array:
     dataset = UnlabelledImageFolder(input_dir, preprocess)
     loader = DataLoader(dataset, batch_size, num_workers=128)
-    features = [model(xs.to(device)).detach().cpu().numpy() for xs in tqdm(loader)]
+    with torch.no_grad():
+        features = [model(xs.to(device)).detach().cpu().numpy() for xs in tqdm(loader)]
     return np.concatenate(features)
 
 
@@ -56,15 +57,16 @@ def encode(input_dir, output_path, model_name, batch_size, dirs, format):
         image_dirs = input_dir
     logging.info(f"Found {len(image_dirs)} image directories.")
 
-    # get the model from torchvision
-    logging.info(f"Loading {model_name} model.")
-    model, preprocess = get_model(model_name)
-    logging.info(model)
-
     # setup the pytorch device
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     logging.info(f"Running on device: {device}")
+
+    # get the model from torchvision
+    logging.info(f"Loading {model_name} model.")
+    model, preprocess = get_model(model_name)
     model.to(device)
+    model.eval()  # set the model into evaluation mode
+    logging.info(model)
 
     # iterate over the input dirs, encoding and outputting to disk
     for image_dir in image_dirs:

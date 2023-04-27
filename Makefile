@@ -49,7 +49,8 @@ docker_run_dada_interactive:
 		--name $(LOCAL_USER)-$(DOCKER_IMAGE_NAME) \
 		--ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
 		-v /home/$(LOCAL_USER)/development/simcoder-pytorch:/workspace/$(PROJECT_NAME) \
-		-v /data/mf/images:/input \
+		-v /data/mf:/input \
+		-v /data/models:/models \
 		-v /data:/output \
 		-it $(DOCKER_IMAGE_NAME):latest
 
