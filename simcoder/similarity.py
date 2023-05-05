@@ -15,7 +15,7 @@ from simcoder.models import get_model
 
 
 IMAGE_FILES_PER_FOLDER = 10000
-mf_dir = Path("/input/images")
+mf_dir = Path("/Volumes/Data/mf/images/")  # <<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 def get_mf_image(index: int) -> Image.Image:
