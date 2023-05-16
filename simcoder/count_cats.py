@@ -6,6 +6,13 @@ def countNumberInResultsInCat(cat,thresh,result_indices,sm_data):
     results = sm_data[result_indices]
     return ( results[:,cat] > thresh ).sum()
 
+def getBestCats(category_required : int, nn_ids : np.array, sm_data : np.array, allData : np.array) -> np.array:
+    '''Return the indices of those images in nn_ids sorted by the category_required in the sm_data'''
+    sm_values_of_interest = sm_data[nn_ids]   # the sm values for each of the nns
+    indices = sm_values_of_interest[:,category_required] # activation value for the category of interest for each nn
+    best_nnids = np.flip(np.argsort(indices))
+    return nn_ids[best_nnids]
+
 def countNumberinCatGTThresh(cat,thresh,sm_data):
     '''Returns the number of entries in encodings for which cat is greater than thresh'''
     '''Use the other function countNumberInResultsInCat if counting results'''

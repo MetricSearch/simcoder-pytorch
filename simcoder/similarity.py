@@ -53,7 +53,7 @@ def encode(query_image: Image.Image, model_name: str) -> np.array:
 
 
 def euclid(img_features: np.array, encodings: np.array):
-    distances = np.sqrt(np.sum((img_features - encodings) ** 2, axis=1))
+    distances = np.sqrt(np.sum(np.square((img_features - encodings)), axis=1))
     return distances
 
 
