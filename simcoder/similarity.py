@@ -13,10 +13,8 @@ import sys
 sys.path.append("../")
 from simcoder.models import get_model
 
-
 IMAGE_FILES_PER_FOLDER = 10000
-mf_dir = Path("/Volumes/Data/mf/images/")  # <<<<<<<<<<<<<<<<<<<<<<<<<<
-
+mf_dir = Path("/Volumes/Data/mf/images/")  # <<<<<<<<<<<<<<<<<<<<<<<<<< TODO fix me
 
 def get_mf_image(index: int) -> Image.Image:
     folder_idx = index // IMAGE_FILES_PER_FOLDER
@@ -56,6 +54,12 @@ def euclid(img_features: np.array, encodings: np.array):
     distances = np.sqrt(np.sum(np.square((img_features - encodings)), axis=1))
     return distances
 
+def getDists(query_index,allData):
+    '''Return the distances from the query to allData'''
+    '''Returns an array same dimension as allData of scalars'''
+    mf_query_data = allData[query_index]
+    distances = euclid(mf_query_data, allData)
+    return distances
 
 def make_mf_image_grid(
     img_indices: np.array, num_cols: int, num_rows: int, img_w: int, img_h: int

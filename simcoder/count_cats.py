@@ -1,5 +1,19 @@
 import numpy as np
 
+from typing import Tuple
+
+def findHighlyCategorisedInDataset(smData : np.array,thresh : float) -> Tuple[np.array, np.array]:
+    '''Find the most categorised data in the dataset'''
+    '''To be included the images must be categorised at at least the theshold sameness'''
+    '''Params: smData the softmax data for the dataset being analysed'''
+    '''        threshold - the value that any softmax value must reach to be included - higher is mre conservative '''
+    '''Returns the most categorised categories (first) and their counts (second)'''
+    filtered = np.where(smData>thresh,1,0) # 1 - s in all cells gt threshold
+    sums = np.sum(filtered,axis=0) # sum up all the columns
+    most_catgorical_indices = np.flip(np.argsort(sums))  # vector of indices sorted into descending order
+    most_catgorical = sums[most_catgorical_indices] # sums in descending order
+    return most_catgorical_indices,most_catgorical
+
 def countNumberInResultsInCat(cat,thresh,result_indices,sm_data):
     '''Returns the number of results for which cat is greater than thresh'''
     '''Use the other function countNumberinCatGTThresh is just interested in encoding totals'''
