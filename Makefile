@@ -49,8 +49,7 @@ docker_run_dada_interactive:
 		--name $(LOCAL_USER)-$(DOCKER_IMAGE_NAME) \
 		--ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
 		-v /home/$(LOCAL_USER)/development/simcoder-pytorch:/workspace/$(PROJECT_NAME) \
-		-v /data/mf:/input \
-		-v /data/models:/models \
+		-v /data/mf:/Volumes/data \
 		-v /data:/output \
 		-it $(DOCKER_IMAGE_NAME):latest
 
@@ -67,3 +66,5 @@ run_batch:
 
 # python simcoder /input /output/mf_alexnet_fc6 alexnet_fc6 128 --dirs --format=csv
 # --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
+
+# Don't need to run anything - will run notebooks interactively.
