@@ -5,12 +5,12 @@ import pandas as pd
 import numpy as np
 from typing import List
 import math
-from simcoder.nsimplex import NSimplex
-from simcoder.similarity import getDists
-from simcoder.count_cats import get_topcat, getBestCatsInSubset
-from simcoder.count_cats import get_best_cat_index
+from nsimplex import NSimplex
+from similarity import getDists
+from count_cats import get_topcat, getBestCatsInSubset
+from count_cats import get_best_cat_index
 from scipy.spatial.distance import pdist, squareform
-from simcoder.count_cats import count_number_in_results_in_cat
+from count_cats import count_number_in_results_in_cat
 import sys
 # nasty import hack - this is a code smell, work out how to remove it
 sys.path.append('../')

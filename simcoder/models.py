@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from torchvision.models import AlexNet_Weights
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
 
-from .simclr2 import get_resnet, name_to_params
+# from .simclr2 import get_resnet, name_to_params
 
 def get_image_net_preprocessor():
     return Compose(
@@ -54,17 +54,17 @@ def load_resnet50_softmax() -> nn.Module:
     return model, preprocess
 
 
-def load_simclr2_r50_2x_sk1() -> nn.Module:
-    # load in the model
-    preprocess = get_image_net_preprocessor()
-    pth_path = "/models/r50_2x_sk1.pth"
-    model, _ = get_resnet(*name_to_params(pth_path))
-    model.load_state_dict(torch.load(pth_path)["resnet"])
+# def load_simclr2_r50_2x_sk1() -> nn.Module:
+#     # load in the model
+#     preprocess = get_image_net_preprocessor()
+#     pth_path = "/models/r50_2x_sk1.pth"
+#     model, _ = get_resnet(*name_to_params(pth_path))
+#     model.load_state_dict(torch.load(pth_path)["resnet"])
 
-    # remove the projection head
-    model.fc = nn.Identity()
+#     # remove the projection head
+#     model.fc = nn.Identity()
 
-    return model, preprocess
+#     return model, preprocess
 
 
 def load_dino2() -> nn.Module:
