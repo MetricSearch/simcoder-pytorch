@@ -48,8 +48,8 @@ docker_run_dada_interactive:
 		--gpus all \
 		--name $(LOCAL_USER)-$(DOCKER_IMAGE_NAME) \
 		--ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
-		-v /home/$(LOCAL_USER)/development/simcoder-pytorch:/workspace/$(PROJECT_NAME) \
-		-v /data:/Volumes/Data \
+		-v /home/$(LOCAL_USER)/repos/simcoder-pytorch:/workspace/repos/$(PROJECT_NAME) \
+		-v /Volumes/Data:/Volumes/Data \
 		-it $(DOCKER_IMAGE_NAME):latest
 
 run_batch:
