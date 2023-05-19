@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 
 import perfect_point_harness as pph
@@ -12,6 +13,9 @@ from similarity import load_mf_encodings
 from similarity import load_mf_softmax
 # import simcoder.perfect_point_harness as pph # moved below to aid reload
 # Load the data:
+
+logging.basicConfig(level=logging.ERROR)
+
 
 data_root = Path("/Volumes/Data/")
 
@@ -31,18 +35,25 @@ top_categories = top_categories[0: number_of_categories_to_test]  # subset the t
 
 queries = pph.getQueries(top_categories,sm_data)  # get one query in each category
 
+print("Running perfect point.")
 perp_results : pd.DataFrame = pph.run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k ) # TODO check the nn later
-simp_results : pd.DataFrame = sph.run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k ) # TODO check the nn later
-aver_results : pd.DataFrame = adh.run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k ) # TODO check the nn later
+print(perp_results)
+perp_results.to_csv(data_root / "perfect_point.csv")
 
+print("Running simplex.")
+simp_results : pd.DataFrame = sph.run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k ) # TODO check the nn later
+print(simp_results)
+simp_results.to_csv(data_root / "simplex.csv")
+
+print("Running average.")
+aver_results : pd.DataFrame = adh.run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k ) # TODO check the nn later
+print(aver_results)
+aver_results.to_csv(data_root / "average.csv")
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
 print(perp_results)
-perp_results.to_csv(data_root / "perfect_point.csv")
 
 print(simp_results)
-simp_results.to_csv(data_root / "simplex.csv")
 
 print(aver_results)
-aver_results.to_csv(data_root / "average.csv")
