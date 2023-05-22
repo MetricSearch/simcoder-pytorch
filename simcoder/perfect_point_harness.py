@@ -12,6 +12,7 @@ from count_cats import get_best_cat_index
 from scipy.spatial.distance import pdist, squareform
 from count_cats import count_number_in_results_in_cat
 import sys
+from multiprocessing import Pool
 # nasty import hack - this is a code smell, work out how to remove it
 sys.path.append('../')
 
@@ -54,6 +55,49 @@ def getQueries(categories: np.array, sm_data: np.array) -> np.array:
         results.append(cats[0]) # just get the most categorical one
     return np.array(results)
 
+def run_one(i: int, queries : np.array, top_categories: np.array, data: np.array, sm_data: np.array, threshold: float, nn_at_which_k: int):
+    query = queries[i]
+    category = top_categories[i]
+    
+    assert get_topcat(query, sm_data) == category, "Queries and categories must match."
+
+    dists = getDists(query, data)
+    closest_indices = np.argsort(dists)  # the closest images to the query
+    
+    best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
+    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
+    poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
+    num_poly_queries = len(poly_query_indexes)
+
+    poly_query_distances = np.zeros( (num_poly_queries, 1000 * 1000))  # poly_query_distances is the distances from the queries to the all data
+    for j in range(num_poly_queries):
+        poly_query_distances[j] = getDists(poly_query_indexes[j], data)
+
+    # Here we will use some estimate of the nn distance to each query to construct a
+    # new point in the nSimplex projection space formed by the poly query objects
+
+    nnToUse = 10
+    ten_nn_dists = np.zeros(num_poly_queries)
+
+    for i in range(num_poly_queries):
+        sortedDists = np.sort(poly_query_distances[i])
+        ten_nn_dists[i] = sortedDists[nnToUse]
+
+    # next line from Italian documentation: README.md line 25
+    inter_pivot_distances = squareform(pdist(poly_query_data, metric=euclid_scalar))  # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
+    distsToPerf = fromSimplexPoint(poly_query_distances, inter_pivot_distances,ten_nn_dists)  # was multipled by 1.1 in some versions!
+
+    closest_indices = np.argsort(distsToPerf)  # the closest images to the perfect point
+    best_k_for_perfect_point = closest_indices[0:nn_at_which_k]
+
+    # Now want to report results the total count in the category
+
+    encodings_for_best_100_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
+    encodings_for_best_100_average = sm_data[best_k_for_perfect_point]  # the alexnet encodings for the best 100 poly-query images
+
+    return query, count_number_in_results_in_cat(category, threshold, best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold, best_k_for_perfect_point, sm_data), np.sum(encodings_for_best_100_single[:, category]), np.sum(encodings_for_best_100_average[:, category])
+
 def run_experiment(queries : np.array, top_categories: np.array, data: np.array, sm_data: np.array, threshold: float, nn_at_which_k: int ) -> pd.DataFrame:
 
     assert queries.size == top_categories.size, "Queries and top_categories must be the same size."    
@@ -65,55 +109,13 @@ def run_experiment(queries : np.array, top_categories: np.array, data: np.array,
     nns_at_k_poly = np.zeros(num_of_experiments) # used to collect results
     best_single_sums = np.zeros(num_of_experiments) # used to collect results
     best_poly_sums = np.zeros(num_of_experiments) # used to collect results
-
+    
+    with Pool(num_of_experiments) as p:
+        xs = range(0, num_of_experiments)
+        res = p.map(run_one, xs))
+    
     for i in range(num_of_experiments):
-        query = queries[i]
-        category = top_categories[i]
-        
-        assert get_topcat(query, sm_data) == category, "Queries and categories must match."
-
-        dists = getDists(query, data)
-        closest_indices = np.argsort(dists)  # the closest images to the query
-        
-        best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
-        best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
-        poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
-        poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
-        num_poly_queries = len(poly_query_indexes)
-
-        poly_query_distances = np.zeros( (num_poly_queries, 1000 * 1000))  # poly_query_distances is the distances from the queries to the all data
-        for j in range(num_poly_queries):
-            poly_query_distances[j] = getDists(poly_query_indexes[j], data)
-
-        # Here we will use some estimate of the nn distance to each query to construct a
-        # new point in the nSimplex projection space formed by the poly query objects
-
-        nnToUse = 10
-        ten_nn_dists = np.zeros(num_poly_queries)
-
-        for i in range(num_poly_queries):
-            sortedDists = np.sort(poly_query_distances[i])
-            ten_nn_dists[i] = sortedDists[nnToUse]
-
-        # next line from Italian documentation: README.md line 25
-        inter_pivot_distances = squareform(pdist(poly_query_data, metric=euclid_scalar))  # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
-        distsToPerf = fromSimplexPoint(poly_query_distances, inter_pivot_distances,ten_nn_dists)  # was multipled by 1.1 in some versions!
-
-        closest_indices = np.argsort(distsToPerf)  # the closest images to the perfect point
-        best_k_for_perfect_point = closest_indices[0:nn_at_which_k]
-
-        # Now want to report results the total count in the category
-
-        encodings_for_best_100_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
-        encodings_for_best_100_average = sm_data[best_k_for_perfect_point]  # the alexnet encodings for the best 100 poly-query images
-
-        # collect up the results
-
-        query_indices.append( query )
-        nns_at_k_single.append( count_number_in_results_in_cat(category, threshold, best_k_for_one_query, sm_data) )
-        nns_at_k_poly.append( count_number_in_results_in_cat(category, threshold, best_k_for_perfect_point, sm_data) )
-        best_single_sums.append( np.sum(encodings_for_best_100_single[:, category]) )
-        best_poly_sums.append( np.sum(encodings_for_best_100_average[:, category]) )
+        run_one(i, queries, top_categories, data, sm_data, threshold, nn_at_which_k)
 
     # now add the results to a dataframe and return it
 
