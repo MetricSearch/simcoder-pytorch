@@ -58,13 +58,15 @@ def run_experiment(queries : np.array, top_categories: np.array, data: np.array,
 
     assert queries.size == top_categories.size, "Queries and top_categories must be the same size."    
 
-    query_indices = []  # used to collect results
-    nns_at_k_single = [] # used to collect results
-    nns_at_k_poly = [] # used to collect results
-    best_single_sums = [] # used to collect results
-    best_poly_sums = [] # used to collect results
+    num_of_experiments = top_categories.size
 
-    for i in range(top_categories.size):
+    query_indices = np.zeros(num_of_experiments)  # used to collect results
+    nns_at_k_single = np.zeros(num_of_experiments) # used to collect results
+    nns_at_k_poly = np.zeros(num_of_experiments) # used to collect results
+    best_single_sums = np.zeros(num_of_experiments) # used to collect results
+    best_poly_sums = np.zeros(num_of_experiments) # used to collect results
+
+    for i in range(num_of_experiments):
         query = queries[i]
         category = top_categories[i]
         
