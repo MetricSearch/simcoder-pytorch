@@ -23,19 +23,19 @@ def get_mf_image(index: int) -> Image.Image:
     return img
 
 
-def load_mf_encodings(encodings_dir: Path) -> np.array:
+def load_encodings_mat(encodings_dir: Path, key: str = 'features') -> np.array:
     paths = encodings_dir.glob("*.mat")
     paths = sorted(paths, key=lambda p: int(p.stem))
-    encodings = [loadmat(p)["features"] for p in paths]
+    encodings = [loadmat(p)[key] for p in paths]
     encodings = np.concatenate(encodings)
     return encodings
 
+def load_mf_encodings(encodings_dir: Path) -> np.array:
+    return load_encodings_mat(encodings_dir, key='features')
+
 def load_mf_softmax(encodings_dir: Path) -> np.array:
-    paths = encodings_dir.glob("*.mat")
-    paths = sorted(paths, key=lambda p: int(p.stem))
-    encodings = [loadmat(p)["probVecs"] for p in paths]
-    encodings = np.concatenate(encodings)
-    return encodings
+    return load_encodings_mat(encodings_dir, key='probVecs')
+
 
 def encode(query_image: Image.Image, model_name: str) -> np.array:
     # setup the pytorch device
