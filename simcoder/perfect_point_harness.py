@@ -28,7 +28,7 @@ def fromSimplexPoint(poly_query_distances: np.array, inter_pivot_distances: np.a
        ie the "perfect" intersection to the rest of the set
        Returns a Pandas dataframe containing the  category_number, category_label, recall_at_k"""
 
-    print("building simplex")
+    #print("building simplex")
 
     nsimp = NSimplex()
     nsimp.build_base(inter_pivot_distances, False)
@@ -36,7 +36,7 @@ def fromSimplexPoint(poly_query_distances: np.array, inter_pivot_distances: np.a
     # second param a (B,N)-shaped array containing distances to the N pivots for B objects.
     perf_point = nsimp._get_apex(nsimp._base, nn_dists)    # was projectWithDistances in matlab
 
-    print("getting dists")
+    #print("getting dists")
 
     dists = np.zeros(1000 * 1000)
     for i in range(1000 * 1000):
