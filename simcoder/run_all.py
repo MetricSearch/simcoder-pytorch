@@ -3,6 +3,7 @@ import pandas as pd
 import perfect_point_harness as pph
 import average_dist_harness as adh
 import simplex_harness as sph
+import mean_point_harness as mph
 from count_cats import findHighlyCategorisedInDataset
 
 import time
@@ -34,7 +35,7 @@ queries = pph.getQueries(top_categories,sm_data)  # get one query in each catego
 perp_results : pd.DataFrame = pph.run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k ) # TODO check the nn later
 simp_results : pd.DataFrame = sph.run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k ) # TODO check the nn later
 aver_results : pd.DataFrame = adh.run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k ) # TODO check the nn later
-
+mean_results : pd.DataFrame = mph.run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k ) # TODO check the nn later
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
@@ -46,3 +47,6 @@ simp_results.to_csv(data_root / "simplex.csv")
 
 print(aver_results)
 aver_results.to_csv(data_root / "average.csv")
+
+print(mean_results)
+mean_results.to_csv(data_root / "average.csv")
