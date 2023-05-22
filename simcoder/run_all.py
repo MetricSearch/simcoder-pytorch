@@ -37,15 +37,15 @@ def run_experiment(queries : np.array, top_categories: np.array, data: np.array,
 
     # now add the results to a dataframe and return it
 
-    results = {
-        "query": queries,
-        "nns_at_k_single": nns_at_k_single,
-        "nns_at_k_poly": nns_at_k_poly,
-        "best_single_sums": best_single_sums,
-        "best_poly_sums": best_poly_sums
-    }
+    # results = {
+    #     "query": queries,
+    #     "nns_at_k_single": nns_at_k_single,
+    #     "nns_at_k_poly": nns_at_k_poly,
+    #     "best_single_sums": best_single_sums,
+    #     "best_poly_sums": best_poly_sums
+    # }
 
-    return pd.DataFrame(results)
+    return res
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -66,7 +66,7 @@ print("Loaded datasets")
 start_time = time.time()
 
 nn_at_which_k : int = 100
-number_of_categories_to_test : int = 2
+number_of_categories_to_test : int = 100
 threshold = 0.95
 
 print("Finding highly categorised categories.")
@@ -76,9 +76,9 @@ top_categories = top_categories[0: number_of_categories_to_test]  # subset the t
 queries = pph.getQueries(top_categories,sm_data)  # get one query in each category
 
 print("Running perfect point.")
-perp_results : pd.DataFrame = pph.run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k,run_perfect_point ) # TODO check the nn later
+perp_results = run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k,run_perfect_point ) # TODO check the nn later
 print(perp_results)
-perp_results.to_csv(data_root / f"perfect_point_{encodings_name}.csv")
+#perp_results.to_csv(data_root / f"perfect_point_{encodings_name}.csv")
 
 # print("Running simplex.")
 # simp_results : pd.DataFrame = sph.run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k ) # TODO check the nn later
@@ -96,10 +96,8 @@ perp_results.to_csv(data_root / f"perfect_point_{encodings_name}.csv")
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
-print(perp_results.describe())
+#print(simp_results.describe())
 
-print(simp_results.describe())
+#print(aver_results.describe())
 
-print(aver_results.describe())
-
-print(mean_results.describe())
+#print(mean_results.describe())
