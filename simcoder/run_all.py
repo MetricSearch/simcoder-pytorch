@@ -24,21 +24,16 @@ def run_experiment(queries : np.array, top_categories: np.array, data: np.array,
     assert queries.size == top_categories.size, "Queries and top_categories must be the same size."    
 
     num_of_experiments = top_categories.size
-
-    query_indices = np.zeros(num_of_experiments)  # used to collect results
-    nns_at_k_single = np.zeros(num_of_experiments) # used to collect results
-    nns_at_k_poly = np.zeros(num_of_experiments) # used to collect results
-    best_single_sums = np.zeros(num_of_experiments) # used to collect results
-    best_poly_sums = np.zeros(num_of_experiments) # used to collect results
     
     with Pool(num_of_experiments) as p:
         xs = range(0, num_of_experiments)
         res = p.map(functools.partial(the_func, queries=queries, top_categories=top_categories, data=data, sm_data=sm_data, threshold=threshold, nn_at_which_k=nn_at_which_k), xs)
 
+    # res is a list of tuples - *zip
     # now add the results to a dataframe and return it
 
     # results = {
-    #     "query": queries,
+    #     "query": res,
     #     "nns_at_k_single": nns_at_k_single,
     #     "nns_at_k_poly": nns_at_k_poly,
     #     "best_single_sums": best_single_sums,
@@ -46,9 +41,6 @@ def run_experiment(queries : np.array, top_categories: np.array, data: np.array,
     # }
 
     return res
-
-logging.basicConfig(level=logging.ERROR)
-
 
 data_root = Path("/Volumes/Data/")
 
