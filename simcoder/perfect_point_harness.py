@@ -1,7 +1,6 @@
 # Runs the perfect point experiment
 # Assumes data is in /Volumes/Data
 
-import pandas as pd
 import numpy as np
 from typing import List
 import math
@@ -12,7 +11,6 @@ from count_cats import get_best_cat_index
 from scipy.spatial.distance import pdist, squareform
 from count_cats import count_number_in_results_in_cat
 import sys
-from multiprocessing import Pool
 # nasty import hack - this is a code smell, work out how to remove it
 sys.path.append('../')
 
@@ -55,7 +53,7 @@ def getQueries(categories: np.array, sm_data: np.array) -> np.array:
         results.append(cats[0]) # just get the most categorical one
     return np.array(results)
 
-def run_one(i: int, queries : np.array, top_categories: np.array, data: np.array, sm_data: np.array, threshold: float, nn_at_which_k: int):
+def run_perfect_point(i: int, queries : np.array, top_categories: np.array, data: np.array, sm_data: np.array, threshold: float, nn_at_which_k: int):
     query = queries[i]
     category = top_categories[i]
     
@@ -98,34 +96,4 @@ def run_one(i: int, queries : np.array, top_categories: np.array, data: np.array
 
     return query, count_number_in_results_in_cat(category, threshold, best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold, best_k_for_perfect_point, sm_data), np.sum(encodings_for_best_100_single[:, category]), np.sum(encodings_for_best_100_average[:, category])
 
-def run_experiment(queries : np.array, top_categories: np.array, data: np.array, sm_data: np.array, threshold: float, nn_at_which_k: int ) -> pd.DataFrame:
-
-    assert queries.size == top_categories.size, "Queries and top_categories must be the same size."    
-
-    num_of_experiments = top_categories.size
-
-    query_indices = np.zeros(num_of_experiments)  # used to collect results
-    nns_at_k_single = np.zeros(num_of_experiments) # used to collect results
-    nns_at_k_poly = np.zeros(num_of_experiments) # used to collect results
-    best_single_sums = np.zeros(num_of_experiments) # used to collect results
-    best_poly_sums = np.zeros(num_of_experiments) # used to collect results
-    
-    with Pool(num_of_experiments) as p:
-        xs = range(0, num_of_experiments)
-        res = p.map(run_one, xs))
-    
-    for i in range(num_of_experiments):
-        run_one(i, queries, top_categories, data, sm_data, threshold, nn_at_which_k)
-
-    # now add the results to a dataframe and return it
-
-    results = {
-        "query": queries,
-        "nns_at_k_single": nns_at_k_single,
-        "nns_at_k_poly": nns_at_k_poly,
-        "best_single_sums": best_single_sums,
-        "best_poly_sums": best_poly_sums
-    }
-
-    return pd.DataFrame(results)
 
