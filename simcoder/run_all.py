@@ -52,6 +52,8 @@ print(aver_results)
 aver_results.to_csv(data_root / "average.csv")
 
 mean_results : pd.DataFrame = mph.run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k ) # TODO check the nn later
+print(mean_results)
+mean_results.to_csv(data_root / "average.csv")
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
