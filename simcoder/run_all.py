@@ -1,31 +1,21 @@
-import functools
-import logging
 import math
-import multiprocessing as mp
+import time
+
 from typing import List
+from pathlib import Path
+import multiprocessing as mp
 import numpy as np
 import pandas as pd
 
-from count_cats import findHighlyCategorisedInDataset
-from perfect_point_harness import run_perfect_point, getQueries
-from similarity import getDists
-from simplex_harness import run_simplex
-from mean_point_harness import run_mean_point
-from count_cats import getBestCatsInSubset
-from count_cats import get_best_cat_index
-from count_cats import count_number_in_results_in_cat
+from scipy.spatial.distance import pdist, squareform
 
-import time
-
-from pathlib import Path
-from similarity import load_mf_encodings
-from similarity import load_mf_softmax
-# import simcoder.perfect_point_harness as pph # moved below to aid reload
-# Load the data:
+from count_cats import getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
+from similarity import getDists, load_mf_encodings, load_mf_softmax
+from nsimplex import NSimplex
 
 data_root = Path("/Volumes/Data/")
 
-# Global constants:
+# Global constants - all global so that they can be shared amongst parallel instances
 
 queries = None
 top_categories = None
@@ -33,6 +23,8 @@ data = None # the resnet 50 encodings
 sm_data = None # the softmax data
 threshold = None
 nn_at_which_k = None # num of records to compare in results
+
+# Functions:
 
 def euclid_scalar(p1: np.array, p2: np.array):
     distances = math.sqrt(np.sum((p1 - p2) ** 2))
@@ -46,8 +38,118 @@ def getQueries(categories: np.array, sm_data: np.array) -> List[int]:
         results.append(cats[0]) # just get the most categorical one
     return results
 
-def run_average(i : int):
+def fromSimplexPoint(poly_query_distances: np.array, inter_pivot_distances: np.array, nn_dists:  np.array) -> np.array:
+    """poly_query_data is the set of reference points with which to build the simplex
+       inter_pivot_distances are the inter-pivot distances with which to build the base simplex
+       nn_dists is a column vec of distances, each a bit more than the nn distance from each ref to the rest of the data set
+       ie the "perfect" intersection to the rest of the set
+       Returns a np.array containing the distances"""
 
+    nsimp = NSimplex()
+    nsimp.build_base(inter_pivot_distances, False)
+
+    # second param a (B,N)-shaped array containing distances to the N pivots for B objects.
+    perf_point = nsimp._get_apex(nsimp._base, nn_dists)    # was projectWithDistances in matlab
+
+    #print("getting dists")
+
+    dists = np.zeros(1000 * 1000)
+    for i in range(1000 * 1000):
+        distvec = poly_query_distances[:, i]                      # a row vec of distances
+        pr = nsimp._get_apex(nsimp._base, np.transpose(distvec))
+        dists[i] = euclid_scalar(pr, perf_point)  # is this right - see comment in simplex_peacock on this!
+
+    return dists
+
+def run_mean_point(i : int):
+    """This runs an experiment like perfect point below but uses the means of the distances to other pivots as the apex distance"""
+    query = queries[i]
+    category = top_categories[i]
+        
+    assert get_topcat(query, sm_data) == category, "Queries and categories must match."
+
+    dists = getDists(query, data)
+    closest_indices = np.argsort(dists)  # the closest images to the query
+        
+    best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
+    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
+    poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
+    num_poly_queries = len(poly_query_indexes)
+
+    poly_query_distances = np.zeros( (num_poly_queries, 1000 * 1000))  # poly_query_distances is the distances from the queries to the all data
+    for j in range(num_poly_queries):
+        poly_query_distances[j] = getDists(poly_query_indexes[j], data)
+
+
+    # next line from Italian documentation: README.md line 25
+    inter_pivot_distances = squareform(pdist(poly_query_data, metric=euclid_scalar))  # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
+
+    apex_distances = np.mean( inter_pivot_distances, axis=1)
+
+    # Here we set the perfect point to be at the mean inter-pivot distance.
+    # mean_ipd = np.mean(inter_pivot_distances)
+    # apex_distances = np.full(num_poly_queries,mean_ipd)
+
+    distsToPerf = fromSimplexPoint(poly_query_distances, inter_pivot_distances,apex_distances)  # was multipled by 1.1 in some versions!
+
+    closest_indices = np.argsort(distsToPerf)  # the closest images to the perfect point
+    best_k_for_perfect_point = closest_indices[0:nn_at_which_k]
+
+    # Now want to report results the total count in the category
+
+    encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
+    encodings_for_best_k_average = sm_data[best_k_for_perfect_point]  # the alexnet encodings for the best 100 poly-query images
+
+    return query, count_number_in_results_in_cat(category, threshold, best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold, best_k_for_perfect_point, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_average[:, category])
+
+
+def run_perfect_point(i: int):
+    """This runs an experiment with the the apex distance based on a NN distance from a simplex point"""
+    query = queries[i]
+    category = top_categories[i]
+    
+    assert get_topcat(query, sm_data) == category, "Queries and categories must match."
+
+    dists = getDists(query, data)
+    closest_indices = np.argsort(dists)  # the closest images to the query
+    
+    best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
+    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
+    poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
+    num_poly_queries = len(poly_query_indexes)
+
+    poly_query_distances = np.zeros( (num_poly_queries, 1000 * 1000))  # poly_query_distances is the distances from the queries to the all data
+    for j in range(num_poly_queries):
+        poly_query_distances[j] = getDists(poly_query_indexes[j], data)
+
+    # Here we will use some estimate of the nn distance to each query to construct a
+    # new point in the nSimplex projection space formed by the poly query objects
+
+    nnToUse = 10
+    ten_nn_dists = np.zeros(num_poly_queries)
+
+    for i in range(num_poly_queries):
+        sortedDists = np.sort(poly_query_distances[i])
+        ten_nn_dists[i] = sortedDists[nnToUse]
+
+    # next line from Italian documentation: README.md line 25
+    inter_pivot_distances = squareform(pdist(poly_query_data, metric=euclid_scalar))  # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
+    distsToPerf = fromSimplexPoint(poly_query_distances, inter_pivot_distances,ten_nn_dists)  # was multipled by 1.1 in some versions!
+
+    closest_indices = np.argsort(distsToPerf)  # the closest images to the perfect point
+    best_k_for_perfect_point = closest_indices[0:nn_at_which_k]
+
+    # Now want to report results the total count in the category
+
+    encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
+    encodings_for_best_k_average = sm_data[best_k_for_perfect_point]  # the alexnet encodings for the best 100 poly-query images
+
+    return query, count_number_in_results_in_cat(category, threshold, best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold, best_k_for_perfect_point, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_average[:, category])
+
+def run_average(i : int):
+    """This just uses the average distance to all points from the queries as the distance"""
     global queries
     global top_categories
     global data
@@ -55,6 +157,7 @@ def run_average(i : int):
     global threshold
     global nn_at_which_k
     
+    print( "running average", i, queries[i] )
     query = queries[i]
     category = top_categories[i]
     dists = getDists(query, data)
@@ -80,18 +183,61 @@ def run_average(i : int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_average = sm_data[best_k_for_average_indices]  # the alexnet encodings for the best 100 poly-query images
 
+    print( "finished running average", i )
     return query, count_number_in_results_in_cat(category, threshold, best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold, best_k_for_average_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_average[:, category])
 
+def run_simplex(i : int):
+    "This creates a simplex and calculates the simplex height for each of the other points and takes the best n to be the query solution"
+    query = queries[i]
+    category = top_categories[i]
+    dists = getDists(query, data)
+    closest_indices = np.argsort(dists)  # the closest images to the query
+        
+    best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
+    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
+    poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
+    num_poly_queries = len(poly_query_indexes)
 
-def run_experiment( the_func ) -> pd.DataFrame:
+    poly_query_distances = np.zeros( (num_poly_queries, 1000 * 1000))  # poly_query_distances is the distances from the queries to the all data
+    for j in range(num_poly_queries):
+        poly_query_distances[j] = getDists(poly_query_indexes[j], data)
 
-    assert queries.size == top_categories.size, "Queries and top_categories must be the same size."    
+    inter_pivot_distances = squareform(pdist(poly_query_data, metric=euclid_scalar)) # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
+
+    # Simplex Projection
+    # First calculate the distances from the queries to all data as we will be needing them again
+
+    nsimp = NSimplex()
+    nsimp.build_base(inter_pivot_distances,False)
+
+    # Next, find last coord from the simplex formed by 6 query points
+
+    all_apexes = nsimp._get_apex(nsimp._base,np.transpose(poly_query_distances))
+    altitudes = all_apexes[:,num_poly_queries -1] # the heights of the simplex - last coordinate
+
+    closest_indices = np.argsort(altitudes) # the closest images to the apex
+    best_k_for_simplex = closest_indices[0:nn_at_which_k]
+
+    # Now want to report results the total count in the category
+
+    encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
+    encodings_for_best_k_average = sm_data[best_k_for_simplex]  # the alexnet encodings for the best 100 poly-query images
+
+    return query, count_number_in_results_in_cat(category, threshold, best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold, best_k_for_simplex, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_average[:, category])
+
+def run_experiment( the_func,experiment_name : str,encodings_name: str ) -> None:
+    "A wrapper to run the experiments - calls the_func and saves the results from a dataframe"
+
+    print(f"Running {experiment_name}")
+
+    assert len(queries) == top_categories.size, "Queries and top_categories must be the same size."    
 
     num_of_experiments = top_categories.size
      
     with mp.Pool(mp.cpu_count()) as p:
         xs = range(0, num_of_experiments)
-        tlist = p.map(the_func(xs))
+        tlist = p.map(the_func,xs)
 
     # tlist is a list of tuples each tuple is the result of one run
     # which look like this: query, count best_k_for_one_query, best_k_for_expt, sum best_k_one, sum best_k_expt
@@ -109,20 +255,28 @@ def run_experiment( the_func ) -> pd.DataFrame:
         "best_poly_sums": unzipped[4]
     }
 
-    return pd.DataFrame(results)
+    df = pd.DataFrame(results)
+    saveData(df,experiment_name,encodings_name)
+
+    print(f"Finished running {experiment_name}")
 
 def saveData( results: pd.DataFrame, expt_name : str,encodings_name: str) -> None:
+    "Saves the data to the file system and prints an overview"
     print(results.describe())
     results.to_csv(data_root / "results" / f"{expt_name}_{encodings_name}.csv" )
 
 def main():
 
-    global queries
-    global top_categories
+    # These are all globals so that they can be shared by the parallel instances
+
     global data
     global sm_data
-    global threshold
     global nn_at_which_k 
+    global threshold
+    global top_categories
+    global queries
+
+    # Initialisation of globals
 
     # encodings_name = 'mf_resnet50'
     encodings_name = 'mf_dino2'
@@ -137,7 +291,7 @@ def main():
     start_time = time.time()
 
     nn_at_which_k = 100
-    number_of_categories_to_test = 1
+    number_of_categories_to_test = 100
     threshold = 0.95
 
     print("Finding highly categorised categories.")
@@ -146,17 +300,14 @@ def main():
 
     queries = getQueries(top_categories,sm_data)  # get one query in each category
 
- #   perp_results = run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k,run_perfect_point )
- #   mean_results = run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k,run_mean_point )
- #   simp_results = run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k,run_simplex )
-    aver_results = run_experiment(run_average)
+    # end of Initialisation of globals - not updated after here
+
+    run_experiment(run_perfect_point,"perfect_point",encodings_name)
+    run_experiment(run_mean_point,"mean_point",encodings_name)
+    run_experiment(run_simplex,"simplex",encodings_name)
+    run_experiment(run_average,"average",encodings_name)
 
     print("--- %s seconds ---" % (time.time() - start_time))
-
-    # saveData( perp_results,"perfect_point",encodings_name)
-    # saveData( mean_results,"mean_point",encodings_name)
-    # saveData( simp_results,"simplex",encodings_name)
-    # saveData( aver_results,"average",encodings_name)
 
 if __name__ == "__main__":
     mp.set_start_method("fork")
