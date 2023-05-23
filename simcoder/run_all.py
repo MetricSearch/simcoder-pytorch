@@ -27,7 +27,7 @@ top_categories = None
 data = None # the resnet 50 encodings
 sm_data = None # the softmax data
 threshold = None
-nn_at_which_k : int = None # num of records to compare in results
+nn_at_which_k = None # num of records to compare in results
 
 
 def run_experiment(queries : np.array, top_categories: np.array, data: np.array, sm_data: np.array, threshold: float, nn_at_which_k: int, the_func ) -> pd.DataFrame:
