@@ -150,12 +150,12 @@ def run_perfect_point(i: int):
 
 def run_average(i : int):
     """This just uses the average distance to all points from the queries as the distance"""
-    global queries
-    global top_categories
-    global data
-    global sm_data
-    global threshold
-    global nn_at_which_k
+    # global queries
+    # global top_categories
+    # global data
+    # global sm_data
+    # global threshold
+    # global nn_at_which_k
     
     print( "running average", i, queries[i] )
     query = queries[i]
@@ -231,6 +231,7 @@ def run_experiment( the_func,experiment_name : str,encodings_name: str ) -> None
 
     print(f"Running {experiment_name}")
 
+    assert len(queries) == top_categories.size, "Queries and top_categories must be the same size."    
     assert len(queries) == top_categories.size, "Queries and top_categories must be the same size."    
 
     num_of_experiments = top_categories.size
