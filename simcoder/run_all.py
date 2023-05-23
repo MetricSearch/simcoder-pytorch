@@ -11,7 +11,6 @@ from perfect_point_harness import run_perfect_point, getQueries
 from simcoder.similarity import getDists
 from simplex_harness import run_simplex
 from mean_point_harness import run_mean_point
-from average_dist_harness import run_average
 from count_cats import getBestCatsInSubset
 from count_cats import get_best_cat_index
 from count_cats import count_number_in_results_in_cat
