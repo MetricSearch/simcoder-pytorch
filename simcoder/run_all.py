@@ -236,7 +236,10 @@ def run_experiment(the_func, experiment_name: str) -> pd.DataFrame:
 
     num_of_experiments = top_categories.size
      
-    with mp.Pool(mp.cpu_count()) as p:
+    max_cpus = mp.cpu_count()
+    not_all = int( ( max_cpus * 3 ) / 4 )
+
+    with mp.Pool(not_all) as p:
         xs = range(0, num_of_experiments)
         tlist = p.map(the_func,xs)
 
