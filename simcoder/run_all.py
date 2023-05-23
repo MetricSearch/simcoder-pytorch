@@ -8,7 +8,7 @@ import pandas as pd
 
 from count_cats import findHighlyCategorisedInDataset
 from perfect_point_harness import run_perfect_point, getQueries
-from simcoder.similarity import getDists
+from similarity import getDists
 from simplex_harness import run_simplex
 from mean_point_harness import run_mean_point
 from count_cats import getBestCatsInSubset
