@@ -258,7 +258,7 @@ def run_experiment( the_func,experiment_name : str,encodings_name: str ) -> None
 
     df = pd.DataFrame(results)
     saveData(df,experiment_name,encodings_name)
-
+    print(df.describe)
     print(f"Finished running {experiment_name}")
 
 def saveData( results: pd.DataFrame, expt_name : str,encodings_name: str) -> None:
