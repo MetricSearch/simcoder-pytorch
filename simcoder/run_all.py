@@ -226,7 +226,7 @@ def run_simplex(i : int):
 
     return query, count_number_in_results_in_cat(category, threshold, best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold, best_k_for_simplex, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_average[:, category])
 
-def run_experiment( the_func,experiment_name : str,encodings_name: str ) -> None:
+def run_experiment(the_func, experiment_name: str) -> pd.DataFrame:
     "A wrapper to run the experiments - calls the_func and saves the results from a dataframe"
 
     print(f"Running {experiment_name}")
@@ -256,10 +256,9 @@ def run_experiment( the_func,experiment_name : str,encodings_name: str ) -> None
         "best_poly_sums": unzipped[4]
     }
 
-    df = pd.DataFrame(results)
-    saveData(df,experiment_name,encodings_name)
-    print(df.describe)
     print(f"Finished running {experiment_name}")
+    return pd.DataFrame(results)
+
 
 def saveData( results: pd.DataFrame, expt_name : str,encodings_name: str) -> None:
     "Saves the data to the file system and prints an overview"
@@ -303,10 +302,14 @@ def main():
 
     # end of Initialisation of globals - not updated after here
 
-    run_experiment(run_perfect_point,"perfect_point",encodings_name)
-    run_experiment(run_mean_point,"mean_point",encodings_name)
-    run_experiment(run_simplex,"simplex",encodings_name)
-    run_experiment(run_average,"average",encodings_name)
+    pp = run_experiment(run_perfect_point,"perfect_point")
+    saveData(pp,"perfect_point",encodings_name)
+    mp = run_experiment(run_mean_point,"mean_point")
+    saveData(mp,"mean_point",encodings_name)
+    simp = run_experiment(run_simplex,"simplex")
+    saveData(simp,"simplex",encodings_name)
+    ave = run_experiment(run_average,"average")
+    saveData(ave,"average",encodings_name)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 
