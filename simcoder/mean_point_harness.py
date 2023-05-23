@@ -56,7 +56,7 @@ def getQueries(categories: np.array, sm_data: np.array) -> np.array:
         results.append(cats[0]) # just get the most categorical one
     return np.array(results)
 
-def run_mean_point(i : int, queries : np.array, top_categories: np.array, data: np.array, sm_data: np.array, threshold: float, nn_at_which_k: int ) -> pd.DataFrame:
+def run_mean_point(i : int, queries : np.array, top_categories: np.array, data: np.array, sm_data: np.array, threshold: float, nn_at_which_k: int ):
     query = queries[i]
     category = top_categories[i]
         
