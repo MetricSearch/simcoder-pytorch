@@ -83,7 +83,7 @@ def run_average(i : int):
     return query, count_number_in_results_in_cat(category, threshold, best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold, best_k_for_average_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_average[:, category])
 
 
-def run_experiment(queries : np.array, top_categories: np.array, data: np.array, sm_data: np.array, threshold: float, nn_at_which_k: int, the_func ) -> pd.DataFrame:
+def run_experiment( the_func ) -> pd.DataFrame:
 
     assert queries.size == top_categories.size, "Queries and top_categories must be the same size."    
 
@@ -149,7 +149,7 @@ def main():
  #   perp_results = run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k,run_perfect_point )
  #   mean_results = run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k,run_mean_point )
  #   simp_results = run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k,run_simplex )
-    aver_results = run_experiment(queries, top_categories, data, sm_data, threshold, nn_at_which_k,run_average )
+    aver_results = run_experiment(run_average)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 
