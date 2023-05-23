@@ -83,8 +83,8 @@ def main():
 
     start_time = time.time()
 
-    nn_at_which_k : int = 100
-    number_of_categories_to_test : int = 1
+    nn_at_which_k = 100
+    number_of_categories_to_test = 1
     threshold = 0.95
 
     print("Finding highly categorised categories.")
