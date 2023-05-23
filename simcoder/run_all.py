@@ -48,12 +48,12 @@ def getQueries(categories: np.array, sm_data: np.array) -> List[int]:
 
 def run_average(i : int):
 
-    global queries
-    global top_categories
-    global data
-    global sm_data
-    global threshold
-    global nn_at_which_k
+    # global queries
+    # global top_categories
+    # global data
+    # global sm_data
+    # global threshold
+    # global nn_at_which_k
     
     query = queries[i]
     category = top_categories[i]
@@ -85,7 +85,7 @@ def run_average(i : int):
 
 def run_experiment( the_func ) -> pd.DataFrame:
 
-    assert queries.size == top_categories.size, "Queries and top_categories must be the same size."    
+    assert len(queries) == top_categories.size, "Queries and top_categories must be the same size."    
 
     num_of_experiments = top_categories.size
      
