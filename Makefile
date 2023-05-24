@@ -42,7 +42,7 @@ docker_run_tars_interactive:
 		-v /scratch/dm236/mf_embeddings:/output \
 		-it $(DOCKER_IMAGE_NAME):latest
 
-docker_run_dada_interactive:
+experiment:
 	docker run \
 		--rm \
 		--gpus all \

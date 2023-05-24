@@ -5,6 +5,7 @@ from encode import encode
 from show import show
 from list_models import list_models
 from experiment import experiment
+import multiprocessing as mp
 
 # let's output the info
 logging.basicConfig(level=logging.INFO, format='%(message)')
@@ -22,6 +23,7 @@ cli.add_command(experiment)
 
 
 if __name__ == "__main__":
+    mp.set_start_method("fork")
     start, proc_start = time.time(), time.process_time()
     cli(prog_name="simcoder")
     delta, proc_delta = time.time() - start, time.process_time() - proc_start

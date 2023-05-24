@@ -1,5 +1,4 @@
 import math
-import time
 
 from typing import List
 from pathlib import Path
@@ -110,6 +109,14 @@ def run_mean_point(i : int):
 
 def run_perfect_point(i: int):
     """This runs an experiment with the the apex distance based on a NN distance from a simplex point"""
+
+    global queries
+    global top_categories
+    global data
+    global sm_data
+    global threshold
+    global nn_at_which_k
+
     query = queries[i]
     category = top_categories[i]
     
@@ -155,6 +162,13 @@ def run_perfect_point(i: int):
 def run_average(i : int):
     """This just uses the average distance to all points from the queries as the distance"""
     
+    global queries
+    global top_categories
+    global data
+    global sm_data
+    global threshold
+    global nn_at_which_k
+
     print( "running average", i, queries[i] )
     query = queries[i]
     category = top_categories[i]
@@ -186,6 +200,14 @@ def run_average(i : int):
 
 def run_simplex(i : int):
     "This creates a simplex and calculates the simplex height for each of the other points and takes the best n to be the query solution"
+
+    global queries
+    global top_categories
+    global data
+    global sm_data
+    global threshold
+    global nn_at_which_k
+
     query = queries[i]
     category = top_categories[i]
     dists = getDists(query, data)
@@ -227,17 +249,17 @@ def run_simplex(i : int):
 def run_experiment(the_func, experiment_name: str) -> pd.DataFrame:
     "A wrapper to run the experiments - calls the_func and saves the results from a dataframe"
 
-    print(f"Running {experiment_name}")
-
     assert len(queries) == top_categories.size, "Queries and top_categories must be the same size."    
     assert len(queries) == top_categories.size, "Queries and top_categories must be the same size."    
 
     num_of_experiments = top_categories.size
      
     max_cpus = mp.cpu_count()
-    not_all = int( ( max_cpus * 3 ) / 4 )
+    use_cpus = max_cpus // 2
 
-    with mp.Pool(not_all) as p:
+    print(f"Running {experiment_name} on {use_cpus} cpus from max of {max_cpus}")
+
+    with mp.Pool(use_cpus) as p:
         xs = range(0, num_of_experiments)
         tlist = p.map(the_func,xs)
 
@@ -271,10 +293,7 @@ def saveData( results: pd.DataFrame, expt_name : str, output_path: Path) -> None
 @click.argument("softmax", type=click.Path(exists=False))
 @click.argument("output_path", type=click.Path(exists=False))
 @click.argument("initial_query_index", type=click.INT)
-def experiment(encodings: Path, softmax: Path, output_path: Path, initial_query_index: int ):
-
-    mp.set_start_method("fork")
-
+def experiment(encodings: str, softmax: str, output_path: str, initial_query_index: int ):
     # These are all globals so that they can be shared by the parallel instances
 
     global data
@@ -283,6 +302,10 @@ def experiment(encodings: Path, softmax: Path, output_path: Path, initial_query_
     global threshold
     global top_categories
     global queries
+
+    encodings = Path(encodings)
+    softmax = Path(softmax)
+    output_path = Path(output_path) 
 
     # Initialisation of globals
 
@@ -293,8 +316,6 @@ def experiment(encodings: Path, softmax: Path, output_path: Path, initial_query_
     sm_data = load_mf_encodings(softmax) # load the softmax data
 
     print("Loaded datasets")
-
-    start_time = time.time()
 
     nn_at_which_k = 100
     number_of_categories_to_test = 100
@@ -310,11 +331,9 @@ def experiment(encodings: Path, softmax: Path, output_path: Path, initial_query_
 
     pp = run_experiment(run_perfect_point,"perfect_point")
     saveData(pp,"perfect_point",output_path)
-    mp = run_experiment(run_mean_point,"mean_point")
-    saveData(mp,"mean_point",output_path)
+    meanp = run_experiment(run_mean_point,"mean_point")
+    saveData(meanp,"mean_point",output_path)
     simp = run_experiment(run_simplex,"simplex")
     saveData(simp,"simplex",output_path)
     ave = run_experiment(run_average,"average")
     saveData(ave,"average",output_path)
-
-    print("--- %s seconds ---" % (time.time() - start_time))

@@ -28,7 +28,7 @@ class UnlabelledImageFolder(VisionDataset):
 
 
 class SimpleImagesDataset(IterableDataset):
-    def __init__(self, paths: List[Path], transforms: Callable[..., Any] | None = None, transform: Callable[..., Any] | None = None, target_transform: Callable[..., Any] | None = None) -> None:
+    def __init__(self, paths, transforms, transform, target_transform) -> None:
         self.paths = paths
         self.transforms = transforms
 
