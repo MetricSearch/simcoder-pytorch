@@ -4,6 +4,8 @@ import time
 from typing import List
 from pathlib import Path
 import multiprocessing as mp
+
+import click
 import numpy as np
 import pandas as pd
 
@@ -12,8 +14,6 @@ from scipy.spatial.distance import pdist, squareform
 from count_cats import getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from similarity import getDists, load_mf_encodings, load_mf_softmax
 from nsimplex import NSimplex
-
-data_root = Path("/Volumes/Data/")
 
 # Global constants - all global so that they can be shared amongst parallel instances
 
@@ -31,11 +31,15 @@ def euclid_scalar(p1: np.array, p2: np.array):
     return distances
 
 def getQueries(categories: np.array, sm_data: np.array) -> List[int]:
-    """Return the most categorical query in each of the supplied categories"""
+    """Return the most (0th) categorical query in each of the supplied categories"""
+    return get_nth_categorical_query( categories, sm_data, 0)
+
+def get_nth_categorical_query(categories: np.array, sm_data: np.array, n: int) -> List[int]:
+    """Return the nth categorical query in each of the supplied categories"""
     results = []
     for cat_required in categories:
         cats = get_best_cat_index(cat_required,sm_data)       # all the data in most categorical order (not efficient!)
-        results.append(cats[0]) # just get the most categorical one
+        results.append(cats[n]) # just get the nth categorical one
     return results
 
 def fromSimplexPoint(poly_query_distances: np.array, inter_pivot_distances: np.array, nn_dists:  np.array) -> np.array:
@@ -150,12 +154,6 @@ def run_perfect_point(i: int):
 
 def run_average(i : int):
     """This just uses the average distance to all points from the queries as the distance"""
-    # global queries
-    # global top_categories
-    # global data
-    # global sm_data
-    # global threshold
-    # global nn_at_which_k
     
     print( "running average", i, queries[i] )
     query = queries[i]
@@ -263,12 +261,19 @@ def run_experiment(the_func, experiment_name: str) -> pd.DataFrame:
     return pd.DataFrame(results)
 
 
-def saveData( results: pd.DataFrame, expt_name : str,encodings_name: str) -> None:
+def saveData( results: pd.DataFrame, expt_name : str, output_path: Path) -> None:
     "Saves the data to the file system and prints an overview"
     print(results.describe())
-    results.to_csv(data_root / "results" / f"{expt_name}_{encodings_name}.csv" )
+    results.to_csv(output_path / f"{expt_name}.csv" )
 
-def main():
+@click.command()
+@click.argument("encodings", type=click.Path(exists=False))
+@click.argument("softmax", type=click.Path(exists=False))
+@click.argument("output_path", type=click.Path(exists=False))
+@click.argument("initial_query_index", type=click.INT)
+def experiment(encodings: Path, softmax: Path, output_path: Path, initial_query_index: int ):
+
+    mp.set_start_method("fork")
 
     # These are all globals so that they can be shared by the parallel instances
 
@@ -281,13 +286,11 @@ def main():
 
     # Initialisation of globals
 
-    # encodings_name = 'mf_resnet50'
-    encodings_name = 'mf_dino2'
-    print(f"Loading {encodings_name} encodings.")
-    data = load_mf_encodings(data_root / encodings_name) # load resnet 50 encodings
+    print(f"Loading {encodings} data encodings.")
+    data = load_mf_encodings(encodings) # load resnet 50 encodings
 
-    print(f"Loading Alexnet Softmax encodings.")
-    sm_data = load_mf_encodings(data_root / "mf_alexnet_softmax") # load the softmax data
+    print(f"Loading {softmax} softmax encodings.")
+    sm_data = load_mf_encodings(softmax) # load the softmax data
 
     print("Loaded datasets")
 
@@ -301,21 +304,17 @@ def main():
     top_categories,counts = findHighlyCategorisedInDataset(sm_data, threshold)  # get the top categories in the dataset
     top_categories = top_categories[0: number_of_categories_to_test]  # subset the top categories
 
-    queries = getQueries(top_categories,sm_data)  # get one query in each category
+    queries = get_nth_categorical_query(top_categories,sm_data,initial_query_index)  # get one query in each category
 
     # end of Initialisation of globals - not updated after here
 
     pp = run_experiment(run_perfect_point,"perfect_point")
-    saveData(pp,"perfect_point",encodings_name)
+    saveData(pp,"perfect_point",output_path)
     mp = run_experiment(run_mean_point,"mean_point")
-    saveData(mp,"mean_point",encodings_name)
+    saveData(mp,"mean_point",output_path)
     simp = run_experiment(run_simplex,"simplex")
-    saveData(simp,"simplex",encodings_name)
+    saveData(simp,"simplex",output_path)
     ave = run_experiment(run_average,"average")
-    saveData(ave,"average",encodings_name)
+    saveData(ave,"average",output_path)
 
     print("--- %s seconds ---" % (time.time() - start_time))
-
-if __name__ == "__main__":
-    mp.set_start_method("fork")
-    main()
