@@ -38,7 +38,7 @@ class NSimplex (object):
             x_n = base[k, k - 1]
             y_n = apex[:, k - 1] 
             w = y_n - diff / (2 * x_n) #second last coordinate of the new apex
-            z = np.sqrt(y_n ** 2 - w ** 2)
+            z = np.sqrt((y_n ** 2) - (w ** 2))
 
             is_significant = np.isfinite(z) #& np.isreal(z)
 
