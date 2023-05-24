@@ -169,7 +169,6 @@ def run_average(i : int):
     global threshold
     global nn_at_which_k
 
-    print( "running average", i, queries[i] )
     query = queries[i]
     category = top_categories[i]
     dists = getDists(query, data)
@@ -255,7 +254,7 @@ def run_experiment(the_func, experiment_name: str) -> pd.DataFrame:
     num_of_experiments = top_categories.size
      
     max_cpus = mp.cpu_count()
-    use_cpus = max_cpus // 2
+    use_cpus = max_cpus // 4
 
     print(f"Running {experiment_name} on {use_cpus} cpus from max of {max_cpus}")
 
