@@ -10,9 +10,9 @@ import pandas as pd
 
 from scipy.spatial.distance import pdist, squareform
 
-from count_cats import getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
-from similarity import getDists, load_mf_encodings, load_mf_softmax
-from nsimplex import NSimplex
+from simcoder.count_cats import getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
+from simcoder.similarity import getDists, load_mf_encodings, load_mf_softmax
+from simcoder.nsimplex import NSimplex
 
 # Global constants - all global so that they can be shared amongst parallel instances
 
