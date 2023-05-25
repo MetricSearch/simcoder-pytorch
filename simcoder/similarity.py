@@ -11,7 +11,7 @@ import torch
 import sys
 
 sys.path.append("../")
-from models import get_model
+from simcoder.models import get_model
 
 IMAGE_FILES_PER_FOLDER = 10000
 mf_dir = Path("/Volumes/Data/mf/images/")  # <<<<<<<<<<<<<<<<<<<<<<<<<< TODO fix me
