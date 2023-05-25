@@ -10,7 +10,7 @@ import pandas as pd
 
 from scipy.spatial.distance import pdist, squareform
 
-from simcoder.count_cats import getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
+from simcoder.count_cats import findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from simcoder.similarity import getDists, load_mf_encodings, load_mf_softmax
 from simcoder.nsimplex import NSimplex
 
@@ -318,10 +318,10 @@ def experiment100(encodings: str, softmax: str, output_path: str, initial_query_
 
     nn_at_which_k = 100
     number_of_categories_to_test = 100
-    threshold = 0.95
+    threshold = 0.90 # lower threshold than before
 
     print("Finding highly categorised categories.")
-    top_categories,counts = findHighlyCategorisedInDataset(sm_data, threshold)  # get the top categories in the dataset
+    top_categories,counts = findCatsWithCountMoreThanLessThan(80,195,sm_data,threshold) # at least 80 and at most 195 - 101 cats
     top_categories = top_categories[0: number_of_categories_to_test]  # subset the top categories
 
     queries = get_nth_categorical_query(top_categories,sm_data,initial_query_index)  # get one query in each category
