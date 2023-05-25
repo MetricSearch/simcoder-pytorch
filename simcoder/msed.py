@@ -15,7 +15,6 @@ import numpy as np
 def msed(X):
     """
     Calculates the mean squared exponential deviation (MSED) of input data.
-    and takes the L1 norm to be conservative
 
     Args:
         X (ndarray): Input data as a 2D numpy array, where each row represents a sample.
