@@ -12,6 +12,7 @@ from scipy.spatial.distance import pdist, squareform
 
 from simcoder.count_cats import findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from simcoder.similarity import getDists, load_mf_encodings, load_mf_softmax
+from simcoder.msed import msed
 from simcoder.nsimplex import NSimplex
 
 # Global constants - all global so that they can be shared amongst parallel instances
@@ -245,6 +246,46 @@ def run_simplex(i : int):
 
     return query, count_number_in_results_in_cat(category, threshold, best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold, best_k_for_simplex, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_average[:, category])
 
+def run_msed(i : int):
+    "This runs msed for the queries plus the values from the dataset and takes the lowest."
+
+    global queries
+    global top_categories
+    global data
+    global sm_data
+    global threshold
+    global nn_at_which_k
+
+    query = queries[i]
+    category = top_categories[i]
+    dists = getDists(query, data)
+    closest_indices = np.argsort(dists)  # the closest images to the query
+        
+    best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
+    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
+    poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
+    num_poly_queries = len(poly_query_indexes)
+
+    data_size = data.shape[0]
+
+    msed_results = np.zeros(data_size)
+
+    for j in range(data_size):  # all the rows in the dataset
+        data_for_j = np.vstack( (poly_query_data, data[j]) )  # add a row
+        msed_results[j] = msed(data_for_j)
+
+    closest_indices = np.argsort(msed_results)                  # the closest images to the apex
+    best_k_for_msed_indices = closest_indices[0:nn_at_which_k]
+
+    # Now want to report results the total count in the category
+
+    encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
+    encodings_for_best_k_average = sm_data[best_k_for_msed_indices]  # the alexnet encodings for the best 100 poly-query images
+
+    print( "finished running average", i )
+    return query, count_number_in_results_in_cat(category, threshold, best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold, best_k_for_msed_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_average[:, category])
+
 def run_experiment(the_func, experiment_name: str) -> pd.DataFrame:
     "A wrapper to run the experiments - calls the_func and saves the results from a dataframe"
 
@@ -317,7 +358,7 @@ def experiment100(encodings: str, softmax: str, output_path: str, initial_query_
     print("Loaded datasets")
 
     nn_at_which_k = 100
-    number_of_categories_to_test = 100
+    number_of_categories_to_test = 1
     threshold = 0.90 # lower threshold than before
 
     print("Finding highly categorised categories.")
@@ -328,11 +369,13 @@ def experiment100(encodings: str, softmax: str, output_path: str, initial_query_
 
     # end of Initialisation of globals - not updated after here
 
-    pp = run_experiment(run_perfect_point,"perfect_point")
-    saveData(pp,"perfect_point",output_path)
-    meanp = run_experiment(run_mean_point,"mean_point")
-    saveData(meanp,"mean_point",output_path)
-    simp = run_experiment(run_simplex,"simplex")
-    saveData(simp,"simplex",output_path)
-    ave = run_experiment(run_average,"average")
-    saveData(ave,"average",output_path)
+    # pp = run_experiment(run_perfect_point,"perfect_point")
+    # saveData(pp,"perfect_point",output_path)
+    # meanp = run_experiment(run_mean_point,"mean_point")
+    # saveData(meanp,"mean_point",output_path)
+    # simp = run_experiment(run_simplex,"simplex")
+    # saveData(simp,"simplex",output_path)
+    # ave = run_experiment(run_average,"average")
+    # saveData(ave,"average",output_path)
+    msed_res = run_experiment(run_msed,"msed")
+    saveData(msed_res,"msed",output_path)
