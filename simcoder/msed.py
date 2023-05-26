@@ -1,64 +1,31 @@
 import math
 import numpy as np
 
-# function
-# result = msed(X)
-# noOfVals = size(X,1);
-# avdata = sum(X) ./ noOfVals;
-# compav = complexity(avdata);
-# comps = complexity(X);
-# product = cumprod(comps);
-# bottomLine = product(noOfVals) ^ (1/noOfVals);
-# result = (1 / (noOfVals - 1)) .* (compav / bottomLine - 1);
-# end
-
+def l1_norm(X):
+    X = np.maximum(0,X)
+    row_sums = np.sum(X,axis=1)
+    print(f"row_sums type is {type(row_sums)} shape is {row_sums.shape}")
+    X = np.divide(X.T,row_sums).T  # divide all elements rowwise by rowsums!
+    return X
+                 
 def msed(X):
-    """
-    Calculates the mean squared exponential deviation (MSED) of input data.
+    X = l1_norm(X)                                                      # X is no_datapoints,features, Relud and L1 normed. - SHAPE CORRECT & DATA CORRECT
+    noOfVals = X.shape[0]                                               # a scalar - value is no_datapoints
+    avdata = np.sum(X, axis=0, keepdims=True) / noOfVals                # sum the columns find averages - shape: 1,features  - SHAPE CORRECT
+    compav = complexity(avdata)                                         # the complexity of each of the rows (only 1) - so a single 1, vector
+    comps = complexity(X)                                               # the complexity of each of the rows - datapoints,1
+    product = np.cumprod(comps)                                         # product shape is no_datapoints,1
+    bottomLine =  product[noOfVals-1] ** (1/noOfVals)                   # bottomline is a float
+    result = (1 / (noOfVals - 1)) * (compav / bottomLine - 1)           # result is a 1,1 matrux need to unoack it.
+    return result.item()        
 
-    Args:
-        X (ndarray): Input data as a 2D numpy array, where each row represents a sample.
-
-    Returns:
-        float: The MSED value.
-    """
-    X = np.abs(X) # take the L1 norm
-    no_of_vals = X.shape[0]    # this is the number of values (rows) pased in - OK
-    print(f"no_of_vals {no_of_vals}")
-    
-    av_data = np.divide(np.sum(X, axis=1), no_of_vals)  # sum across the rows gives (no_of_vals,) - OK
-    #av_data = np.expand_dims(av_data, axis=1) # makes this into shape (no_of_vals,1) can call complexity on it
-
-    comp_av = complexity(av_data)           # shape was (no_of_vals,1)    
-    comps = complexity(X)                   # shape comps was (no_of_vals,) 
-    product = np.cumprod(comps)              # shape product was (no_of_vals,)
-    bottom_line = product[-1] ** (1 / no_of_vals)  # last index of product raised to 1/ no_of_vals (exp???)
-    
-    # This result should be a scalar - a float - but how do we get it?
-    result = np.multiply((1 / (no_of_vals - 1)),(comp_av / bottom_line - 1))
-    
-    return result
-
-# function
-# C = complexity(X)
-# logs = log(X);
-# hs = X .* logs;
-# cs = -sum(hs,2);
-# C = exp(cs);
-# end
-def complexity(X: np.array) -> np.array:  # is this right or should be it be a scalar?
-    """
-    Calculates the complexity of input data.
-
-    Args:
-        X (ndarray): Input data as a 2D numpy array, where each row represents a sample.
-
-    Returns:
-        ndarray: Array of complexity values for each sample. 1D array as a column of floats.
-
-    """
-    logs = np.log(X)
-    hs = np.multiply(X, logs)
-    cs = - np.sum(hs)           #  a scalar  - a float  - did have an axis parameter. axis=1
-    result = math.exp(cs)       #  a scalar  - a float  - WAS NP OPERATION DAVID
-    return result
+def complexity(X):
+    # X is of shape no_datapoints,features
+    try:
+        logs = np.log(X)                        # logs of shape no_datapoints,features
+    except RuntimeWarning:                      # zero encountered - let it go (as per Disney)
+        pass
+    hs = np.multiply(X,logs)                    # hs of shape no_datapoints,features
+    cs = -np.nansum(hs, axis=1, keepdims=True)  # sum along the rows => cs is of shape no_datapoints,1
+    C = np.exp(cs)                              # C is of shape matrix of no_datapoints,1
+    return C                                    # return matrix of no_datapoints,1
