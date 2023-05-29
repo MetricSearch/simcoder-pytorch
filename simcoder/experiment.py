@@ -110,13 +110,6 @@ def run_mean_point(i : int):
 def run_perfect_point(i: int):
     """This runs an experiment with the the apex distance based on a NN distance from a simplex point"""
 
-    global queries
-    global top_categories
-    global data
-    global sm_data
-    global threshold
-    global nn_at_which_k
-
     query = queries[i]
     category = top_categories[i]
     
@@ -161,13 +154,6 @@ def run_perfect_point(i: int):
 
 def run_average(i : int):
     """This just uses the average distance to all points from the queries as the distance"""
-    
-    global queries
-    global top_categories
-    global data
-    global sm_data
-    global threshold
-    global nn_at_which_k
 
     query = queries[i]
     category = top_categories[i]
@@ -198,13 +184,6 @@ def run_average(i : int):
 
 def run_simplex(i : int):
     "This creates a simplex and calculates the simplex height for each of the other points and takes the best n to be the query solution"
-
-    global queries
-    global top_categories
-    global data
-    global sm_data
-    global threshold
-    global nn_at_which_k
 
     query = queries[i]
     category = top_categories[i]
