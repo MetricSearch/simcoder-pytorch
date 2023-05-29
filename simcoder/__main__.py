@@ -4,8 +4,8 @@ import click
 from encode import encode
 from show import show
 from list_models import list_models
-# from experiment import experiment
-from experiment_100 import experiment100
+from experiment import experiment
+from experiment_strict import experimentstrict
 import multiprocessing as mp
 import sys
 
@@ -23,8 +23,8 @@ def cli():
 cli.add_command(encode)
 cli.add_command(show)
 cli.add_command(list_models)
-# cli.add_command(experiment)
-cli.add_command(experiment100)
+cli.add_command(experiment)
+cli.add_command(experimentstrict)
 
 
 if __name__ == "__main__":

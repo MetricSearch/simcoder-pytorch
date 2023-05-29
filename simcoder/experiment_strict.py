@@ -10,7 +10,7 @@ import pandas as pd
 
 from scipy.spatial.distance import pdist, squareform
 
-from simcoder.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
+from simcoder.count_cats import findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from simcoder.similarity import getDists, load_mf_encodings, load_mf_softmax
 from simcoder.msed import msed
 from simcoder.nsimplex import NSimplex
@@ -105,7 +105,7 @@ def run_mean_point(i : int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    return query, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    return query, count_number_in_results_in_cat(category, threshold,  best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold,  best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 
 def run_perfect_point(i: int):
@@ -158,7 +158,7 @@ def run_perfect_point(i: int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    return query, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    return query, count_number_in_results_in_cat(category, threshold,  best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold,  best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 def run_average(i : int):
     """This just uses the average distance to all points from the queries as the distance"""
@@ -196,7 +196,7 @@ def run_average(i : int):
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
     print( "finished running average", i )
-    return query, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    return query, count_number_in_results_in_cat(category, threshold,  best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold,  best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 def run_simplex(i : int):
     "This creates a simplex and calculates the simplex height for each of the other points and takes the best n to be the query solution"
@@ -244,7 +244,7 @@ def run_simplex(i : int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    return query, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    return query, count_number_in_results_in_cat(category, threshold,  best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold,  best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 def run_msed(i : int):
     "This runs msed for the queries plus the values from the dataset and takes the lowest."
@@ -283,7 +283,7 @@ def run_msed(i : int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    return query, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    return query, count_number_in_results_in_cat(category, threshold, best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 def run_experiment(the_func, experiment_name: str) -> pd.DataFrame:
     "A wrapper to run the experiments - calls the_func and saves the results from a dataframe"
@@ -331,8 +331,11 @@ def saveData( results: pd.DataFrame, expt_name : str, output_path: Path) -> None
 @click.argument("encodings", type=click.Path(exists=False))
 @click.argument("softmax", type=click.Path(exists=False))
 @click.argument("output_path", type=click.Path(exists=False))
+@click.argument("number_of_categories_to_test", type=click.INT)
+@click.argument("k", type=click.INT)
 @click.argument("initial_query_index", type=click.INT)
-def experiment100(encodings: str, softmax: str, output_path: str, initial_query_index: int ):
+@click.argument("thresh", type=click.INT)
+def experimentstrict(encodings: str, softmax: str, output_path: str, number_of_categories_to_test: int, k: int, initial_query_index: int, thresh: float ):
     # These are all globals so that they can be shared by the parallel instances
 
     global data
@@ -362,25 +365,30 @@ def experiment100(encodings: str, softmax: str, output_path: str, initial_query_
 
     print("Loaded datasets")
 
-    nn_at_which_k = 100
-    number_of_categories_to_test = 100
-    threshold = 0.90 # lower threshold than before
+    nn_at_which_k = k
+    threshold = thresh
 
     print("Finding highly categorised categories.")
-    top_categories,counts = findCatsWithCountMoreThanLessThan(100,184,sm_data,threshold) # at least 80 and at most 195 - 101 cats sm values for resnet_50
+    top_categories,counts = findCatsWithCountMoreThanLessThan(80,195,sm_data,threshold) # at least 80 and at most 195 - 101 cats
     top_categories = top_categories[0: number_of_categories_to_test]  # subset the top categories
 
     queries = get_nth_categorical_query(top_categories,sm_data,initial_query_index)  # get one query in each categories
 
+    ############# HACK
+
+    queries = np.array( [464045] )
+
+    ############# HACK
+
     # end of Initialisation of globals - not updated after here
 
-    pp = run_experiment(run_perfect_point,"perfect_point")
-    saveData(pp,"perfect_point",output_path)
-    meanp = run_experiment(run_mean_point,"mean_point")
-    saveData(meanp,"mean_point",output_path)
-    simp = run_experiment(run_simplex,"simplex")
-    saveData(simp,"simplex",output_path)
-    ave = run_experiment(run_average,"average")
-    saveData(ave,"average",output_path)
+    # pp = run_experiment(run_perfect_point,"perfect_point")
+    # saveData(pp,"perfect_point",output_path)
+    # meanp = run_experiment(run_mean_point,"mean_point")
+    # saveData(meanp,"mean_point",output_path)
+    # simp = run_experiment(run_simplex,"simplex")
+    # saveData(simp,"simplex",output_path)
+    # ave = run_experiment(run_average,"average")
+    # saveData(ave,"average",output_path)
     msed_res = run_experiment(run_msed,"msed")
     saveData(msed_res,"msed",output_path)
