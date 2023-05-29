@@ -11,9 +11,9 @@ def findHighlyCategorisedInDataset(smData : np.array,thresh : float) -> Tuple[np
     """Find the most categorised data in the dataset
        To be included the images must be categorised at at least the theshold samenes
        Params: smData the softmax data for the dataset being analysed
-            threshold - the value that any softmax value must reach to be included - higher is mre conservative
+            threshold - the value that any softmax value must reach to be included - higher is more conservative
        Params: smData the softmax data for the dataset being analysed
-            threshold - the value that any softmax value must reach to be included - higher is mre conservative
+            threshold - the value that any softmax value must reach to be included - higher is more conservative
        Returns the most categorised categories (first) and their counts (second)"""
     filtered = np.where(smData>thresh,1,0) # 1 - s in all cells gt threshold
     sums = np.sum(filtered,axis=0) # sum up all the columns
@@ -27,10 +27,20 @@ def count_number_in_results_in_cat(cat,thresh,result_indices,sm_data):
     results = sm_data[result_indices]
     return ( results[:,cat] > thresh ).sum()
 
+def count_number_in_results_cated_as(cat,result_indices,sm_data):
+    """Returns the number of results for which cat is the max cat."""
+    sm_results = sm_data[result_indices]        # softmax activation values for images in results_indices
+    res_cats = np.argmax(sm_results, axis=1)    # maximum category for each of the results
+    return (res_cats == cat).sum()              # select results where category is equal to cat
+
+def count_images_in_category(sm_data):
+    """Returns the count of images for which an images is maximally classified as that category """
+    res_cats = np.argmax(sm_data, axis=1)    # maximum category for each of the results
+    return np.unique(res_cats,return_counts=True)
+    
 def getBestCats(category_required: int, sm_data: np.array) -> np.array:
     """Return the indices of those images sorted by the category_required in the sm_data"""
-    indices = sm_data[:,category_required] # activation value for the category of interest for each nn
-    best_nnids = np.flip(np.argsort(indices))
+    best_nnids = get_best_cat_index(category_required, sm_data)
     return sm_data[best_nnids]
 
 def get_best_cat_index(category_required: int, sm_data: np.array) -> np.array:

@@ -4,7 +4,6 @@ import numpy as np
 def l1_norm(X):
     X = np.maximum(0,X)
     row_sums = np.sum(X,axis=1)
-    print(f"row_sums type is {type(row_sums)} shape is {row_sums.shape}")
     X = np.divide(X.T,row_sums).T  # divide all elements rowwise by rowsums!
     return X
                  
