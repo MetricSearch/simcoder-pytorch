@@ -334,7 +334,7 @@ def saveData( results: pd.DataFrame, expt_name : str, output_path: Path) -> None
 @click.argument("number_of_categories_to_test", type=click.INT)
 @click.argument("k", type=click.INT)
 @click.argument("initial_query_index", type=click.INT)
-@click.argument("thresh", type=click.INT)
+@click.argument("thresh", type=click.FLOAT)
 def experiment(encodings: str, softmax: str, output_path: str, number_of_categories_to_test: int, k: int, initial_query_index: int, thresh: float ):
     # These are all globals so that they can be shared by the parallel instances
 
