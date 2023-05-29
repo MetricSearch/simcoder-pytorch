@@ -195,7 +195,6 @@ def run_average(i : int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    print( "finished running average", i )
     return query, count_number_in_results_in_cat(category, threshold,  best_k_for_one_query, sm_data), count_number_in_results_in_cat(category, threshold,  best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 def run_simplex(i : int):
