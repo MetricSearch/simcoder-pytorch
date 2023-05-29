@@ -17,10 +17,10 @@ LOCAL_GID = $(shell id -g)
 # LOCAL ENV COMMANDS                                                            #
 #################################################################################
 environment:
-	python3 -m venv venv
-	. venv/bin/activate
-	pip install -r requirements.txt
+	. venv/bin/activate &&  pip install -r requirements.txt && pip install -e .
 
+venv:
+	python -m venv venv
 #################################################################################
 # CONTAINER COMMANDS                                                            #
 #################################################################################

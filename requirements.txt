@@ -136,3 +136,4 @@ widgetsnbextension==4.0.3
 y-py==0.5.5
 yarl==1.8.2
 ypy-websocket==0.8.2
+torchinfo
