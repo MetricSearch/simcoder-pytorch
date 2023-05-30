@@ -24,6 +24,7 @@ data = None # the resnet 50 encodings
 sm_data = None # the softmax data
 threshold = None
 nn_at_which_k = None # num of records to compare in results
+categories = None # The categorical strings
 
 # Functions:
 
@@ -108,7 +109,7 @@ def run_mean_point(i : int):
 
     max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
     
-    return query, max_possible_in_cat, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 
 def run_perfect_point(i: int):
@@ -163,7 +164,7 @@ def run_perfect_point(i: int):
 
     max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
     
-    return query, max_possible_in_cat, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 def run_average(i : int):
     """This just uses the average distance to all points from the queries as the distance"""
@@ -202,7 +203,7 @@ def run_average(i : int):
 
     max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
     
-    return query, max_possible_in_cat, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 def run_simplex(i : int):
     "This creates a simplex and calculates the simplex height for each of the other points and takes the best n to be the query solution"
@@ -252,7 +253,7 @@ def run_simplex(i : int):
 
     max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
     
-    return query, max_possible_in_cat, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 def run_msed(i : int):
     "This runs msed for the queries plus the values from the dataset and takes the lowest."
@@ -293,7 +294,7 @@ def run_msed(i : int):
 
     max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
     
-    return query, max_possible_in_cat, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 def run_experiment(the_func, experiment_name: str) -> pd.DataFrame:
     "A wrapper to run the experiments - calls the_func and saves the results from a dataframe"
@@ -323,10 +324,12 @@ def run_experiment(the_func, experiment_name: str) -> pd.DataFrame:
     results = {
         "query": unzipped[0],
         "no_in_cat": unzipped[1],
-        "nns_at_k_single": unzipped[2],
-        "nns_at_k_poly": unzipped[3],
-        "best_single_sums": unzipped[4],
-        "best_poly_sums": unzipped[5]
+        "cat_index":  unzipped[2],
+        "cat_string": unzipped[3],
+        "nns_at_k_single": unzipped[4],
+        "nns_at_k_poly": unzipped[5],
+        "best_single_sums": unzipped[6],
+        "best_poly_sums": unzipped[7]
     }
 
     print(f"Finished running {experiment_name}")
@@ -355,6 +358,7 @@ def experiment(encodings: str, softmax: str, output_path: str, number_of_categor
     global threshold
     global top_categories
     global queries
+    global categories
 
     print("Running experiment100.")
     print(f"encodings: {encodings}")
@@ -373,6 +377,9 @@ def experiment(encodings: str, softmax: str, output_path: str, number_of_categor
 
     print(f"Loading {softmax} softmax encodings.")
     sm_data = load_mf_encodings(softmax) # load the softmax data
+
+    with open("imagenet_classes.txt", "r") as f:
+        categories = [s.strip() for s in f.readlines()]
 
     print("Loaded datasets")
 
