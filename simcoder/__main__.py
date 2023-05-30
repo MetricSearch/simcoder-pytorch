@@ -6,6 +6,7 @@ from show import show
 from list_models import list_models
 from experiment import experiment
 from experiment_strict import experimentstrict
+from experimentselected import experimentselected
 import multiprocessing as mp
 import sys
 
@@ -25,7 +26,7 @@ cli.add_command(show)
 cli.add_command(list_models)
 cli.add_command(experiment)
 cli.add_command(experimentstrict)
-
+cli.add_command(experimentselected)
 
 if __name__ == "__main__":
     mp.set_start_method("fork")
