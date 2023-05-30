@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from scipy.spatial.distance import pdist, squareform
-from build.lib.simcoder.count_cats import countNumberinCatGTThresh
+from simcoder.count_cats import countNumberinCatGTThresh
 
 from simcoder.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from simcoder.similarity import getDists, load_mf_encodings, load_mf_softmax
