@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from scipy.spatial.distance import pdist, squareform
+from build.lib.simcoder.count_cats import countNumberinCatGTThresh
 
 from simcoder.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from simcoder.similarity import getDists, load_mf_encodings, load_mf_softmax
@@ -105,7 +106,9 @@ def run_mean_point(i : int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    return query, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
+    
+    return query, max_possible_in_cat, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 
 def run_perfect_point(i: int):
@@ -158,7 +161,9 @@ def run_perfect_point(i: int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    return query, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
+    
+    return query, max_possible_in_cat, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 def run_average(i : int):
     """This just uses the average distance to all points from the queries as the distance"""
@@ -195,7 +200,9 @@ def run_average(i : int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    return query, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
+    
+    return query, max_possible_in_cat, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 def run_simplex(i : int):
     "This creates a simplex and calculates the simplex height for each of the other points and takes the best n to be the query solution"
@@ -243,7 +250,9 @@ def run_simplex(i : int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    return query, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
+    
+    return query, max_possible_in_cat, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 def run_msed(i : int):
     "This runs msed for the queries plus the values from the dataset and takes the lowest."
@@ -282,7 +291,9 @@ def run_msed(i : int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    return query, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+    max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
+    
+    return query, max_possible_in_cat, count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
 def run_experiment(the_func, experiment_name: str) -> pd.DataFrame:
     "A wrapper to run the experiments - calls the_func and saves the results from a dataframe"
@@ -311,10 +322,11 @@ def run_experiment(the_func, experiment_name: str) -> pd.DataFrame:
 
     results = {
         "query": unzipped[0],
-        "nns_at_k_single": unzipped[1],
-        "nns_at_k_poly": unzipped[2],
-        "best_single_sums": unzipped[3],
-        "best_poly_sums": unzipped[4]
+        "no_in_cat": unzipped[1],
+        "nns_at_k_single": unzipped[2],
+        "nns_at_k_poly": unzipped[3],
+        "best_single_sums": unzipped[4],
+        "best_poly_sums": unzipped[5]
     }
 
     print(f"Finished running {experiment_name}")
