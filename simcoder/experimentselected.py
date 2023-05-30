@@ -386,9 +386,9 @@ def experimentselected(encodings: str, softmax: str, output_path: str, number_of
     nn_at_which_k = k
     threshold = thresh
 
-    # print("Finding highly categorised categories.")
-    # top_categories,counts = findCatsWithCountMoreThanLessThan(100,184,sm_data,threshold) # at least 80 and at most 195 - 101 cats sm values for resnet_50
-    # top_categories = top_categories[0: number_of_categories_to_test]  # subset the top categories
+    print("Finding highly categorised categories.")
+    top_categories,counts = findCatsWithCountMoreThanLessThan(100,184,sm_data,threshold) # at least 80 and at most 195 - 101 cats sm values for resnet_50
+    top_categories = top_categories[0: number_of_categories_to_test]  # subset the top categories
 
     with open( "selected_queries.txt","r" ) as f:
         queries = [int(line.strip()) for line in f ]
