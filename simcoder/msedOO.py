@@ -25,7 +25,7 @@ class msed:
         self.no_of_objects = X.shape[0]                                 # a scalar - value is no_datapoint print(f"X.shape {X.shape}")
         self.base_sum = np.sum(X, axis=0, keepdims=True)                # column sums axis 0 so gives 1,encode_size print(f"base_sum.shape {self.base_sum.shape}")
         self.base_complexities = complexity(X)                          # num_of_objects,1 print(f"base_complexities.shape {self.base_complexities.shape}")      
-        cp = np.cumprod(self.base_complexities)                          # num_of_objects, print(f"cp.shape {cp.shape}")                                        
+        cp = np.cumprod(self.base_complexities)                         # num_of_objects, print(f"cp.shape {cp.shape}")                                        
         self.base_complexities_product = cp[self.no_of_objects-1];
         self.mean_values = np.sum(X, axis=0, keepdims=True) / self.no_of_objects  # mean column values - num_of_objects,1                
 
