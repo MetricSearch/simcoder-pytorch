@@ -274,10 +274,9 @@ def run_msed(i : int):
     best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
-    num_poly_queries = len(poly_query_indexes)
 
-    base = msed(poly_query_data)
-    msed_results =base.msed(data)
+    base = msed(np.array(poly_query_data))
+    msed_results = base.msed(data)
     msed_results = msed_results.flatten()   # <<< these are all matrices of matrices shouldn't be.
     closest_indices = np.argsort(msed_results)                  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
@@ -392,13 +391,13 @@ def experimentselected(encodings: str, softmax: str, output_path: str, number_of
 
     # end of Initialisation of globals - not updated after here
 
-    pp = run_experiment(run_perfect_point,"perfect_point")
-    saveData(pp,"perfect_point",output_path)
-    meanp = run_experiment(run_mean_point,"mean_point")
-    saveData(meanp,"mean_point",output_path)
-    simp = run_experiment(run_simplex,"simplex")
-    saveData(simp,"simplex",output_path)
-    ave = run_experiment(run_average,"average")
-    saveData(ave,"average",output_path)
+    # pp = run_experiment(run_perfect_point,"perfect_point")
+    # saveData(pp,"perfect_point",output_path)
+    # meanp = run_experiment(run_mean_point,"mean_point")
+    # saveData(meanp,"mean_point",output_path)
+    # simp = run_experiment(run_simplex,"simplex")
+    # saveData(simp,"simplex",output_path)
+    # ave = run_experiment(run_average,"average")
+    # saveData(ave,"average",output_path)
     msed_res = run_experiment(run_msed,"msed")
     saveData(msed_res,"msed",output_path)
