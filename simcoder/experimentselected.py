@@ -387,7 +387,7 @@ def experimentselected(encodings: str, softmax: str, output_path: str, number_of
     with open( "selected_queries.txt","r" ) as f:
         queries = [int(line.strip()) for line in f ]
 
-    # queries = get_nth_categorical_query(top_categories,sm_data,initial_query_index)  # get one query in each categories
+    queries = get_nth_categorical_query(top_categories,sm_data,initial_query_index)  # get one query in each categories
 
     # end of Initialisation of globals - not updated after here
 
