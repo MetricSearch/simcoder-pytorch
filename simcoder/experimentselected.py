@@ -13,7 +13,7 @@ from simcoder.count_cats import countNumberinCatGTThresh
 
 from simcoder.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from simcoder.similarity import getDists, load_mf_encodings, load_mf_softmax
-from simcoder.msed import msed
+from simcoder.msedOO import msed
 from simcoder.nsimplex import NSimplex
 
 # Global constants - all global so that they can be shared amongst parallel instances
@@ -276,15 +276,10 @@ def run_msed(i : int):
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
 
-    data_size = data.shape[0]
-
-    msed_results = np.zeros(data_size)
-
-    for j in range(data_size):  # all the rows in the dataset
-        data_for_j = np.vstack( (poly_query_data, data[j]) )  # add a row
-        msed_results[j] = msed(data_for_j)
-
-    closest_indices = np.argsort(msed_results)                  # the closest images to the apex
+    base = msed(poly_query_data)
+    msed_results =base.msed(data)
+    msed_results = msed_results.flatten()   # <<< these are all matrices of matrices shouldn't be.
+    closest_indices = np.argsort(msed_results)                  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
 
     # Now want to report results the total count in the category
