@@ -35,7 +35,8 @@ def multiway_structural_entropic_divergence(X: np.array) -> float:
         float: The MSED value - should be in the scale 0-1
     """
     assert np.all(np.isclose(np.sum(X, axis=1), 1.0)), "All row vectors in X must sum to 1."
-    
+    assert len(X.shape) == 2, "X must be a 2d array." 
+
     num_vectors = X.shape[0]
         
     # compute the numerator
