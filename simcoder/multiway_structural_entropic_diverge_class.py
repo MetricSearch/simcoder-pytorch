@@ -12,6 +12,7 @@ def complexity(X: np.array) -> np.array:
         np.array: A column vector of shape (n,1) where each element is
         the complexity of one of the corresponding input row.
     """
+    X[X == 0] = 1  # replace all 0s with 1s to avoid log warnings
     log_X = np.log(X)
     X_log_X = X * log_X
     sum_X_log_X = np.nansum(X_log_X, axis=1, keepdims=True)
