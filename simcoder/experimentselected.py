@@ -13,7 +13,7 @@ from simcoder.count_cats import countNumberinCatGTThresh
 
 from simcoder.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from simcoder.similarity import getDists, load_mf_encodings, load_mf_softmax
-from simcoder.msedOO import msed
+from simcoder.msedOO import l1_norm, msed
 from simcoder.nsimplex import NSimplex
 
 # Global constants - all global so that they can be shared amongst parallel instances
@@ -265,19 +265,22 @@ def run_msed(i : int):
     global threshold
     global nn_at_which_k
 
+    normed_data = l1_norm(data)
+
     query = queries[i]
-    dists = getDists(query, data)
+    category = get_topcat(query, sm_data)
+    dists = getDists(query, normed_data)
     closest_indices = np.argsort(dists)  # the closest images to the query
     
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
-    category = get_topcat(query, sm_data)
     best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
-    poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
+    poly_query_data = normed_data[poly_query_indexes]  # the actual datapoints for the queries
 
     base = msed(np.array(poly_query_data))
-    msed_results = base.msed(data)
-    msed_results = msed_results.flatten()   # <<< these are all matrices of matrices shouldn't be.
+    msed_results = base.msed(normed_data)
+    msed_results = msed_results.flatten()
+
     closest_indices = np.argsort(msed_results)                  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
 
@@ -387,7 +390,7 @@ def experimentselected(encodings: str, softmax: str, output_path: str, number_of
     with open( "selected_queries.txt","r" ) as f:
         queries = [int(line.strip()) for line in f ]
 
-    # queries = get_nth_categorical_query(top_categories,sm_data,initial_query_index)  # get one query in each categories
+    queries = get_nth_categorical_query(top_categories,sm_data,initial_query_index)  # get one query in each categories
 
     # end of Initialisation of globals - not updated after here
 
@@ -395,8 +398,8 @@ def experimentselected(encodings: str, softmax: str, output_path: str, number_of
     # saveData(pp,"perfect_point",output_path)
     # meanp = run_experiment(run_mean_point,"mean_point")
     # saveData(meanp,"mean_point",output_path)
-    # simp = run_experiment(run_simplex,"simplex")
-    # saveData(simp,"simplex",output_path)
+    simp = run_experiment(run_simplex,"simplex")
+    saveData(simp,"simplex",output_path)
     # ave = run_experiment(run_average,"average")
     # saveData(ave,"average",output_path)
     msed_res = run_experiment(run_msed,"msed")
