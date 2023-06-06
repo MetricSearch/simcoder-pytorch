@@ -107,7 +107,7 @@ def run_sed(i :int):
     
     sed_results = np.zeros( 1000 * 1000 )
     for j in range(1000 * 1000):
-        sed_results[i] = msed( np.vstack((query,data[j]))) 
+        sed_results[i] = msed( np.vstack((data[query],data[j]))) 
 
     closest_indices = np.argsort(sed_results)                  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]

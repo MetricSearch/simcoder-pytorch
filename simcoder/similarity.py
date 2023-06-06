@@ -66,7 +66,6 @@ def l2_norm(X):
     # This only works if a matrix is passed in fails for vectors of a single row - TODO ho w to fix?
     origin = np.zeros(X.shape[1])
     factor = euclid(origin,X)
-    print(factor)
     X = np.divide(X.T,factor).T
     return X
 
