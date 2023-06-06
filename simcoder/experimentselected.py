@@ -67,7 +67,7 @@ def fromSimplexPoint(poly_query_distances: np.array, inter_pivot_distances: np.a
 
     return dists
 
-def run_euc_cosine(i :int):
+def run_cos(i :int):
     """This runs an experiment finding the NNs using cosine distance"""
     query = queries[i]
     category = get_topcat(query, sm_data)
@@ -93,7 +93,7 @@ def run_euc_cosine(i :int):
     
     return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_cosine, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_cosine[:, category])
 
-def run_single_sed(i :int):
+def run_sed(i :int):
     """This runs an experiment finding the NNs using SED"""
     """Uses the msed implementation"""
 
@@ -439,6 +439,6 @@ def experimentselected(encodings: str, softmax: str, output_path: str, number_of
     # msed_res = run_experiment(run_msed,"msed")
     # saveData(msed_res,"msed",output_path)
     cos_res = run_experiment(run_cos,"cos")
-    saveData(sed_cos,"cos",output_path)
+    saveData(cos_res,"cos",output_path)
     sed_res = run_experiment(run_sed,"sed")
     saveData(sed_res,"sed",output_path)
