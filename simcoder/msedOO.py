@@ -1,12 +1,6 @@
 import math
 import numpy as np
 
-def l1_norm(X):
-    X = np.maximum(0,X)
-    row_sums = np.sum(X,axis=1)
-    X = np.divide(X.T,row_sums).T  # divide all elements rowwise by rowsums!
-    return X
-
 def complexity(X):
     """ returns a column vector with each  cell is the complexity of the rows of X"""
     # X is of shape no_datapoints,features
@@ -18,7 +12,7 @@ def complexity(X):
     return C                                    # return matrix of no_of_objects,1
 
 class msed:
-    """The data used with this must be l1_normed: use l1_norm function above."""
+    """The data used with this must be l1_normed: use l1_norm function from simiularity.py."""
 
     def __init__(self,X):
         self.base_objects = X        
