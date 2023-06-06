@@ -11,7 +11,7 @@ def complexity(X):
     C = np.exp(cs)                              # C is of shape matrix of no_of_objects,1 print(f"C shape {C.shape}")
     return C                                    # return matrix of no_of_objects,1
 
-class msed:
+class msedOO:
     """The data used with this must be l1_normed: use l1_norm function from simiularity.py."""
 
     def __init__(self,X):

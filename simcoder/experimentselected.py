@@ -13,7 +13,8 @@ from simcoder.count_cats import countNumberinCatGTThresh
 
 from simcoder.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from simcoder.similarity import getDists, l1_norm, l2_norm, load_mf_encodings, load_mf_softmax
-from simcoder.msedOO import msed
+from simcoder.msedOO import msedOO
+from simcoder.msed import msed
 from simcoder.nsimplex import NSimplex
 
 # Global constants - all global so that they can be shared amongst parallel instances
@@ -103,14 +104,12 @@ def run_sed(i :int):
     closest_indices = np.argsort(dists)  # the closest images to the query
     
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
-
-    normed_data = l1_norm(data)
     
-    base = msed(queries[i])    # a single query - just doing ordinary SED using same framework
-    msed_results = base.msed(normed_data)
-    msed_results = msed_results.flatten()
+    sed_results = np.zeros( 1000 * 1000 )
+    for j in range(1000 * 1000):
+        sed_results[i] = msed( np.vstack(query,data[j])) 
 
-    closest_indices = np.argsort(msed_results)                  # the closest images
+    closest_indices = np.argsort(sed_results)                  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
 
     # Now want to report results the total count in the category
@@ -311,7 +310,7 @@ def run_msed(i : int):
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = normed_data[poly_query_indexes]  # the actual datapoints for the queries
 
-    base = msed(np.array(poly_query_data))
+    base = msedOO(np.array(poly_query_data))
     msed_results = base.msed(normed_data)
     msed_results = msed_results.flatten()
 
