@@ -83,7 +83,7 @@ def run_cos(i :int):
     closest_indices = np.argsort(dists)  # the closest images to the query
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
 
-    print( "Time taken for best for k one query: {timeit.timeit() - time } ")
+    print(f"Time taken for best for k one query: {timeit.timeit() - start }")
 
     normed_data = l2_norm(data)
 
@@ -93,7 +93,7 @@ def run_cos(i :int):
     closest_indices = np.argsort(dists)  # the closest images to the query
     best_k_for_cosine = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
 
-    print( "Time taken for best for k cosine query: {timeit.timeit() - start } ")
+    print(f"Time taken for best for k cosine query: {timeit.timeit() - start}")
 
     # Now want to report results the total count in the category
 
@@ -122,7 +122,7 @@ def run_jsd(i :int):
     closest_indices = np.argsort(jsd_results)                  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
 
-    print( "Time taken for best for k jsd query: {timeit.timeit() - start } ")
+    print(f"Time taken for best for k jsd query: {timeit.timeit() - start}")
 
     # Now want to report results the total count in the category
 
@@ -154,7 +154,7 @@ def run_sed(i :int):
     closest_indices = np.argsort(sed_results)                  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
 
-    print( "Time taken for best for k sed query: {timeit.timeit() - start } ")
+    print(f"Time taken for best for k sed query: {timeit.timeit() - start }")
 
     # Now want to report results the total count in the category
 
@@ -193,7 +193,7 @@ def run_mean_point(i : int):
 
     apex_distances = np.mean( inter_pivot_distances, axis=1)
 
-    print( "Time taken for best for k mean point query: {timeit.timeit() - start } ")
+    print(f"Time taken for best for k mean point query: {timeit.timeit() - start }")
 
     # Here we set the perfect point to be at the mean inter-pivot distance.
     # mean_ipd = np.mean(inter_pivot_distances)
@@ -254,7 +254,7 @@ def run_perfect_point(i: int):
     closest_indices = np.argsort(distsToPerf)  # the closest images to the perfect point
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
 
-    print( "Time taken for best for k perfect-point query: {timeit.timeit() - start } ")
+    print(f"Time taken for best for k perfect-point query: {timeit.timeit() - start }")
 
     # Now want to report results the total count in the category
 
@@ -290,7 +290,7 @@ def run_average(i : int):
 
     best_k_for_poly_indices = lowest_sum_indices[:nn_at_which_k]
 
-    print( "Time taken for best for k average query: {timeit.timeit() - start } ")
+    print(f"Time taken for best for k average query: {timeit.timeit() - start}")
 
     # Now want to report results the total count in the category
 
@@ -337,7 +337,7 @@ def run_simplex(i : int):
     closest_indices = np.argsort(altitudes) # the closest images to the apex
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
 
-    print( "Time taken for best for k simplex query: {timeit.timeit() - start } ")
+    print(f"Time taken for best for k simplex query: {timeit.timeit() - start }")
 
     # Now want to report results the total count in the category
 
@@ -372,7 +372,7 @@ def run_msed(i : int):
     closest_indices = np.argsort(msed_results)                  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
 
-    print( "Time taken for best for k simplex query: {timeit.timeit() - start } ")
+    print(f"Time taken for best for k simplex query: {timeit.timeit() - start }")
 
     # Now want to report results the total count in the category
 
