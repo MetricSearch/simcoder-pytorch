@@ -321,7 +321,8 @@ def run_simplex(i : int):
 def run_msed(i : int):
     "This runs msed for the queries plus the values from the dataset and takes the lowest."
 
-    normed_data = l1_norm(data)
+    relued = relu(data)
+    normed_data = l1_norm(relued)
 
     query = queries[i]
     category = get_topcat(query, sm_data)
@@ -332,7 +333,6 @@ def run_msed(i : int):
     best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = normed_data[poly_query_indexes]  # the actual datapoints for the queries
-
 
     base = msedOO(np.array(poly_query_data))
     msed_results = base.msed(normed_data)
@@ -451,19 +451,19 @@ def experimentselected(encodings: str, softmax: str, output_path: str, number_of
 
     # end of Initialisation of globals - not updated after here
 
-    # pp = run_experiment(run_perfect_point,"perfect_point")
-    # saveData(pp,"perfect_point",output_path)
-    # meanp = run_experiment(run_mean_point,"mean_point")
-    # saveData(meanp,"mean_point",output_path)
-    # simp = run_experiment(run_simplex,"simplex")
-    # saveData(simp,"simplex",output_path)
-    # ave = run_experiment(run_average,"average")
-    # saveData(ave,"average",output_path)
-    # msed_res = run_experiment(run_msed,"msed")
-    # saveData(msed_res,"msed",output_path)
-    # cos_res = run_experiment(run_cos,"cos")
-    # saveData(cos_res,"cos",output_path)
-    # sed_res = run_experiment(run_sed,"sed")
-    # saveData(sed_res,"sed",output_path)
+    pp = run_experiment(run_perfect_point,"perfect_point")
+    saveData(pp,"perfect_point",output_path)
+    meanp = run_experiment(run_mean_point,"mean_point")
+    saveData(meanp,"mean_point",output_path)
+    simp = run_experiment(run_simplex,"simplex")
+    saveData(simp,"simplex",output_path)
+    ave = run_experiment(run_average,"average")
+    saveData(ave,"average",output_path)
+    msed_res = run_experiment(run_msed,"msed")
+    saveData(msed_res,"msed",output_path)
+    cos_res = run_experiment(run_cos,"cos")
+    saveData(cos_res,"cos",output_path)
+    sed_res = run_experiment(run_sed,"sed")
+    saveData(sed_res,"sed",output_path)
     jsd_res = run_experiment(run_jsd,"jsd")
     saveData(jsd_res,"jsd",output_path)

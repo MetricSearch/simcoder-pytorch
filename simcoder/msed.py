@@ -1,9 +1,10 @@
 import math
 import numpy as np
-from simcoder.similarity import l1_norm
+from simcoder.similarity import l1_norm, relu
 
                  
 def msed(X):
+    X = relu(X)
     X = l1_norm(X)                                                      # X is no_datapoints,features, Relued and L1 normed.
     noOfVals = X.shape[0]                                               # a scalar - value is no_datapoints
     avdata = np.sum(X, axis=0, keepdims=True) / noOfVals                # sum the columns find averages - shape: 1,features
