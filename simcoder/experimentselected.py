@@ -16,6 +16,7 @@ from simcoder.similarity import getDists, l1_norm, l2_norm, load_mf_encodings, l
 from simcoder.msedOO import msedOO
 from simcoder.msed import msed
 from simcoder.nsimplex import NSimplex
+from simcoder.jsd import jsd
 
 # Global constants - all global so that they can be shared amongst parallel instances
 
@@ -93,6 +94,32 @@ def run_cos(i :int):
     max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
     
     return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_cosine, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_cosine[:, category])
+
+def run_jsd(i :int):
+    """This runs an experiment finding the NNs using SED"""
+    """Uses the msed implementation"""
+
+    query = queries[i]
+    category = get_topcat(query, sm_data)
+    dists = getDists(query, data)
+    closest_indices = np.argsort(dists)  # the closest images to the query
+    
+    best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
+    
+    sed_results = jsd(data[query], data) 
+    
+    closest_indices = np.argsort(sed_results)                  # the closest images
+    best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
+
+    # Now want to report results the total count in the category
+
+    encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
+    encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
+
+    max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
+    
+    return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+
 
 def run_sed(i :int):
     """This runs an experiment finding the NNs using SED"""
@@ -174,7 +201,7 @@ def run_perfect_point(i: int):
     
     assert get_topcat(query, sm_data) == category, "Queries and categories must match."
 
-    dists = getDists(query, data)
+    dists = getDists(query, data) 
     closest_indices = np.argsort(dists)  # the closest images to the query
     
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
@@ -215,13 +242,6 @@ def run_perfect_point(i: int):
 
 def run_average(i : int):
     """This just uses the average distance to all points from the queries as the distance"""
-    
-    global queries
-    global top_categories
-    global data
-    global sm_data
-    global threshold
-    global nn_at_which_k
 
     query = queries[i]
     category = get_topcat(query, sm_data)
@@ -441,3 +461,5 @@ def experimentselected(encodings: str, softmax: str, output_path: str, number_of
     saveData(cos_res,"cos",output_path)
     sed_res = run_experiment(run_sed,"sed")
     saveData(sed_res,"sed",output_path)
+    jsd_res = run_experiment(run_jsd,"jsd")
+    saveData(jsd_res,"jsd",output_path)
