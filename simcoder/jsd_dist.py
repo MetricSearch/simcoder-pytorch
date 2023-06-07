@@ -2,7 +2,10 @@
 import math
 import numpy as np
 
-def jsd(A,B):
+# from simcoder.msed import msed
+# from simcoder.similarity import euclid
+
+def jsd_dist(A,B):
     """first param is an row - an array, second is matrix of rows (values)
        returns a row vector"""
     ha = h(A)
@@ -19,5 +22,11 @@ def h(x):
 
 # test code
 # p1 = np.array([ 0, 0.1, 0.9 ])
-# p2 = np.array([[ 0.9, 0, 0.1 ], [0, 0.5, 0.5]])
-# print(jsd(p1,p2))
+# p2 = np.array([ 0.9, 0, 0.1 ])
+# p3 = np.array([[ 0.9, 0, 0.1 ], [0, 0.5, 0.5]])
+# print(jsd(p1,p3))
+# sed = msed( np.vstack( (p1,p2) ) ) 
+# eu = euclid(p1,p3)
+# print(eu)
+# print(sed)
+

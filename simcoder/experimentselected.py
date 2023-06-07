@@ -17,7 +17,7 @@ from simcoder.similarity import getDists, l1_norm, l2_norm, load_mf_encodings, l
 from simcoder.msedOO import msedOO
 from simcoder.msed import msed
 from simcoder.nsimplex import NSimplex
-from simcoder.jsd import jsd
+from simcoder.jsd_dist import jsd_dist
 
 # Global constants - all global so that they can be shared amongst parallel instances
 
@@ -117,7 +117,7 @@ def run_jsd(i :int):
     
     start = timeit.timeit()
 
-    jsd_results = jsd(data[query], data) 
+    jsd_results = jsd_dist(data[query], data) 
     
     closest_indices = np.argsort(jsd_results)                  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
