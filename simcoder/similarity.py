@@ -56,11 +56,12 @@ def encode(query_image: Image.Image, model_name: str) -> np.array:
     return features
 
 def l1_norm(X):
-    X = np.maximum(0,X)
     row_sums = np.sum(X,axis=1)
     X = np.divide(X.T,row_sums).T  # divide all elements rowwise by rowsums!
     return X
 
+def relu(X):
+    return np.maximum(0,X)
 
 def l2_norm(X):
     # This only works if a matrix is passed in fails for vectors of a single row - TODO ho w to fix?

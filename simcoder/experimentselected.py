@@ -12,7 +12,7 @@ from scipy.spatial.distance import pdist, squareform
 from simcoder.count_cats import countNumberinCatGTThresh
 
 from simcoder.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
-from simcoder.similarity import getDists, l1_norm, l2_norm, load_mf_encodings, load_mf_softmax
+from simcoder.similarity import getDists, l1_norm, l2_norm, relu, load_mf_encodings, load_mf_softmax
 from simcoder.msedOO import msedOO
 from simcoder.msed import msed
 from simcoder.nsimplex import NSimplex
@@ -106,11 +106,10 @@ def run_jsd(i :int):
     
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
 
-    relued_data = np.where(data < 0.0, 0.0, data)
+    relued_data = relu(data)
     normed_data = l1_norm(relued_data)
 
-    jsd_results = jsd_dist(data[query], normed_data) 
-    
+    jsd_results = jsd_dist(normed_data[query], normed_data) 
     closest_indices = np.argsort(jsd_results)                  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
 

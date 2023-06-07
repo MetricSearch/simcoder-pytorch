@@ -1,11 +1,7 @@
 import math
 import numpy as np
+from simcoder.similarity import l1_norm
 
-def l1_norm(X):
-    X = np.maximum(0,X)
-    row_sums = np.sum(X,axis=1)
-    X = np.divide(X.T,row_sums).T  # divide all elements rowwise by rowsums!
-    return X
                  
 def msed(X):
     X = l1_norm(X)                                                      # X is no_datapoints,features, Relued and L1 normed.
