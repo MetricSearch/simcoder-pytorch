@@ -4,7 +4,7 @@ import numpy as np
 
 def jsd(A,B):
     """first param is an row - an array, second is matrix of rows (values)
-       returns a column vector"""
+       returns a row vector"""
     ha = h(A)
     hb = h(B)
     hc = h(A+B)
