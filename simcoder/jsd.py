@@ -9,7 +9,8 @@ def jsd(A,B):
     hb = h(B)
     hc = h(A+B)
     hacc = ( hb - hc ) + ha
-    he = - np.divide( np.nansum( hacc,1,keepdims=True ), math.log(4) ) + 1
+    # he = - np.divide( np.nansum( hacc,1,keepdims=True ), math.log(4) ) + 1
+    he = - np.divide( np.nansum( hacc,1 ), math.log(4) ) + 1
     rtn = np.sqrt( np.where(he<0,0,he) )   
     return rtn
 
