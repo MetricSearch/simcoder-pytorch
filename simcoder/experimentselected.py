@@ -364,7 +364,7 @@ def run_msed(i : int):
     poly_query_data = normed_data[poly_query_indexes]  # the actual datapoints for the queries
 
     start = timeit.timeit()
-    
+
     base = msedOO(np.array(poly_query_data))
     msed_results = base.msed(normed_data)
     msed_results = msed_results.flatten()
@@ -372,7 +372,7 @@ def run_msed(i : int):
     closest_indices = np.argsort(msed_results)                  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
 
-        print( "Time taken for best for k simplex query: {timeit.timeit() - start } ")
+    print( "Time taken for best for k simplex query: {timeit.timeit() - start } ")
 
     # Now want to report results the total count in the category
 
