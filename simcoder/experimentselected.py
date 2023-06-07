@@ -2,7 +2,6 @@ import math
 
 from typing import List
 from pathlib import Path
-import timeit
 import multiprocessing as mp
 
 import click
@@ -77,23 +76,15 @@ def run_cos(i :int):
         
     assert get_topcat(query, sm_data) == category, "Queries and categories must match."
 
-    start = timeit.timeit()
-
     dists = getDists(query, data)
     closest_indices = np.argsort(dists)  # the closest images to the query
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
 
-    print(f"Time taken for best for k one query: {timeit.timeit() - start }")
-
     normed_data = l2_norm(data)
-
-    start = timeit.timeit()
 
     dists = getDists(query, normed_data) # cosine distance same order as l2 norm of data
     closest_indices = np.argsort(dists)  # the closest images to the query
     best_k_for_cosine = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
-
-    print(f"Time taken for best for k cosine query: {timeit.timeit() - start}")
 
     # Now want to report results the total count in the category
 
@@ -114,15 +105,11 @@ def run_jsd(i :int):
     closest_indices = np.argsort(dists)  # the closest images to the query
     
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
-    
-    start = timeit.timeit()
 
     jsd_results = jsd_dist(data[query], data) 
     
     closest_indices = np.argsort(jsd_results)                  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
-
-    print(f"Time taken for best for k jsd query: {timeit.timeit() - start}")
 
     # Now want to report results the total count in the category
 
@@ -145,16 +132,12 @@ def run_sed(i :int):
     
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
     
-    start = timeit.timeit()
-    
     sed_results = np.zeros( 1000 * 1000 )
     for j in range(1000 * 1000):
         sed_results[j] = msed( np.vstack( (data[query],data[j]) ) ) 
 
     closest_indices = np.argsort(sed_results)                  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
-
-    print(f"Time taken for best for k sed query: {timeit.timeit() - start }")
 
     # Now want to report results the total count in the category
 
@@ -181,8 +164,6 @@ def run_mean_point(i : int):
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
 
-    start = timeit.timeit()
-
     poly_query_distances = np.zeros( (num_poly_queries, 1000 * 1000))  # poly_query_distances is the distances from the queries to the all data
     for j in range(num_poly_queries):
         poly_query_distances[j] = getDists(poly_query_indexes[j], data)
@@ -192,8 +173,6 @@ def run_mean_point(i : int):
     inter_pivot_distances = squareform(pdist(poly_query_data, metric=euclid_scalar))  # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
 
     apex_distances = np.mean( inter_pivot_distances, axis=1)
-
-    print(f"Time taken for best for k mean point query: {timeit.timeit() - start }")
 
     # Here we set the perfect point to be at the mean inter-pivot distance.
     # mean_ipd = np.mean(inter_pivot_distances)
@@ -231,8 +210,6 @@ def run_perfect_point(i: int):
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
     
-    start = timeit.timeit()
-    
     poly_query_distances = np.zeros( (num_poly_queries, 1000 * 1000))  # poly_query_distances is the distances from the queries to the all data
     for j in range(num_poly_queries):
         poly_query_distances[j] = getDists(poly_query_indexes[j], data)
@@ -253,8 +230,6 @@ def run_perfect_point(i: int):
 
     closest_indices = np.argsort(distsToPerf)  # the closest images to the perfect point
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
-
-    print(f"Time taken for best for k perfect-point query: {timeit.timeit() - start }")
 
     # Now want to report results the total count in the category
 
@@ -279,8 +254,6 @@ def run_average(i : int):
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
 
-    start = timeit.timeit()
-
     poly_query_distances = np.zeros( (num_poly_queries, 1000 * 1000))  # poly_query_distances is the distances from the queries to the all data
     for j in range(num_poly_queries):
         poly_query_distances[j] = getDists(poly_query_indexes[j], data)
@@ -289,8 +262,6 @@ def run_average(i : int):
     lowest_sum_indices = np.argsort(row_sums)
 
     best_k_for_poly_indices = lowest_sum_indices[:nn_at_which_k]
-
-    print(f"Time taken for best for k average query: {timeit.timeit() - start}")
 
     # Now want to report results the total count in the category
 
@@ -315,8 +286,6 @@ def run_simplex(i : int):
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
 
-    start = timeit.timeit()
-
     poly_query_distances = np.zeros( (num_poly_queries, 1000 * 1000))  # poly_query_distances is the distances from the queries to the all data
     for j in range(num_poly_queries):
         poly_query_distances[j] = getDists(poly_query_indexes[j], data)
@@ -337,7 +306,6 @@ def run_simplex(i : int):
     closest_indices = np.argsort(altitudes) # the closest images to the apex
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
 
-    print(f"Time taken for best for k simplex query: {timeit.timeit() - start }")
 
     # Now want to report results the total count in the category
 
@@ -363,7 +331,6 @@ def run_msed(i : int):
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = normed_data[poly_query_indexes]  # the actual datapoints for the queries
 
-    start = timeit.timeit()
 
     base = msedOO(np.array(poly_query_data))
     msed_results = base.msed(normed_data)
@@ -371,8 +338,6 @@ def run_msed(i : int):
 
     closest_indices = np.argsort(msed_results)                  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
-
-    print(f"Time taken for best for k simplex query: {timeit.timeit() - start }")
 
     # Now want to report results the total count in the category
 
