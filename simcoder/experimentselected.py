@@ -106,7 +106,7 @@ def run_jsd(i :int):
     
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
 
-    relued_data = data.where(data < 0.0, 0.0, data)
+    relued_data = np.where(data < 0.0, 0.0, data)
     normed_data = l1_norm(relued_data)
 
     jsd_results = jsd_dist(data[query], normed_data) 
