@@ -12,8 +12,9 @@ from scipy.spatial.distance import pdist, squareform
 from simcoder.count_cats import countNumberinCatGTThresh
 
 from simcoder.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
-from simcoder.similarity import getDists, load_mf_encodings, load_mf_softmax
-from simcoder.msedOO import l1_norm, msed
+from simcoder.similarity import getDists, l1_norm, l2_norm, load_mf_encodings, load_mf_softmax
+from simcoder.msedOO import msedOO
+from simcoder.msed import msed
 from simcoder.nsimplex import NSimplex
 
 # Global constants - all global so that they can be shared amongst parallel instances
@@ -67,6 +68,59 @@ def fromSimplexPoint(poly_query_distances: np.array, inter_pivot_distances: np.a
 
     return dists
 
+def run_cos(i :int):
+    """This runs an experiment finding the NNs using cosine distance"""
+    query = queries[i]
+    category = get_topcat(query, sm_data)
+        
+    assert get_topcat(query, sm_data) == category, "Queries and categories must match."
+
+    dists = getDists(query, data)
+    closest_indices = np.argsort(dists)  # the closest images to the query
+    best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
+
+    normed_data = l2_norm(data)
+
+    dists = getDists(query, normed_data) # cosine distance same order as l2 norm of data
+    closest_indices = np.argsort(dists)  # the closest images to the query
+    best_k_for_cosine = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
+
+    # Now want to report results the total count in the category
+
+    encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
+    encodings_for_best_k_cosine = sm_data[best_k_for_cosine]  # the alexnet encodings for the best cosine distances
+
+    max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
+    
+    return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_cosine, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_cosine[:, category])
+
+def run_sed(i :int):
+    """This runs an experiment finding the NNs using SED"""
+    """Uses the msed implementation"""
+
+    query = queries[i]
+    category = get_topcat(query, sm_data)
+    dists = getDists(query, data)
+    closest_indices = np.argsort(dists)  # the closest images to the query
+    
+    best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
+    
+    sed_results = np.zeros( 1000 * 1000 )
+    for j in range(1000 * 1000):
+        sed_results[j] = msed( np.vstack( (data[query],data[j]) ) ) 
+
+    closest_indices = np.argsort(sed_results)                  # the closest images
+    best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
+
+    # Now want to report results the total count in the category
+
+    encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
+    encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
+
+    max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
+    
+    return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+
 def run_mean_point(i : int):
     """This runs an experiment like perfect point below but uses the means of the distances to other pivots as the apex distance"""
     query = queries[i]
@@ -114,13 +168,6 @@ def run_mean_point(i : int):
 
 def run_perfect_point(i: int):
     """This runs an experiment with the the apex distance based on a NN distance from a simplex point"""
-
-    global queries
-    global top_categories
-    global data
-    global sm_data
-    global threshold
-    global nn_at_which_k
 
     query = queries[i]
     category = get_topcat(query, sm_data)
@@ -208,13 +255,6 @@ def run_average(i : int):
 def run_simplex(i : int):
     "This creates a simplex and calculates the simplex height for each of the other points and takes the best n to be the query solution"
 
-    global queries
-    global top_categories
-    global data
-    global sm_data
-    global threshold
-    global nn_at_which_k
-
     query = queries[i]
     category = get_topcat(query, sm_data)
     dists = getDists(query, data)
@@ -258,13 +298,6 @@ def run_simplex(i : int):
 def run_msed(i : int):
     "This runs msed for the queries plus the values from the dataset and takes the lowest."
 
-    global queries
-    global top_categories
-    global data
-    global sm_data
-    global threshold
-    global nn_at_which_k
-
     normed_data = l1_norm(data)
 
     query = queries[i]
@@ -277,7 +310,7 @@ def run_msed(i : int):
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = normed_data[poly_query_indexes]  # the actual datapoints for the queries
 
-    base = msed(np.array(poly_query_data))
+    base = msedOO(np.array(poly_query_data))
     msed_results = base.msed(normed_data)
     msed_results = msed_results.flatten()
 
@@ -394,13 +427,17 @@ def experimentselected(encodings: str, softmax: str, output_path: str, number_of
 
     # end of Initialisation of globals - not updated after here
 
-    # pp = run_experiment(run_perfect_point,"perfect_point")
-    # saveData(pp,"perfect_point",output_path)
-    # meanp = run_experiment(run_mean_point,"mean_point")
-    # saveData(meanp,"mean_point",output_path)
+    pp = run_experiment(run_perfect_point,"perfect_point")
+    saveData(pp,"perfect_point",output_path)
+    meanp = run_experiment(run_mean_point,"mean_point")
+    saveData(meanp,"mean_point",output_path)
     simp = run_experiment(run_simplex,"simplex")
     saveData(simp,"simplex",output_path)
-    # ave = run_experiment(run_average,"average")
-    # saveData(ave,"average",output_path)
+    ave = run_experiment(run_average,"average")
+    saveData(ave,"average",output_path)
     msed_res = run_experiment(run_msed,"msed")
     saveData(msed_res,"msed",output_path)
+    cos_res = run_experiment(run_cos,"cos")
+    saveData(cos_res,"cos",output_path)
+    sed_res = run_experiment(run_sed,"sed")
+    saveData(sed_res,"sed",output_path)
