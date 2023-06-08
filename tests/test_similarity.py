@@ -1,5 +1,5 @@
 import unittest
-from simcoder.similarity import *
+from sisap2023.lib.similarity import *
 
 class TestSimilarity(unittest.TestCase):
     def test_encode(self):

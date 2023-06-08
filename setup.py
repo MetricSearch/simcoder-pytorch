@@ -4,6 +4,6 @@ setup(
     name="simcoder",
     packages=find_packages(),
     version="0.1.0",
-    description="A utility for encoding images using deep learning.",
+    description="A code base to perform experiments on conjunctive queries.",
     author="David Morrison",
 )
