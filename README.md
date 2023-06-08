@@ -1,4 +1,4 @@
-# Simcoder
+# sisap2023
 A simple tool for creating embeddings for images for use in similarity experiments.
 
 ## TODO
