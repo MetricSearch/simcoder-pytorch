@@ -12,10 +12,11 @@ from scipy.spatial.distance import pdist, squareform
 from simcoder.count_cats import countNumberinCatGTThresh
 
 from simcoder.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
-from simcoder.similarity import getDists, l1_norm, l2_norm, load_mf_encodings, load_mf_softmax
+from simcoder.similarity import getDists, l1_norm, l2_norm, relu, load_mf_encodings, load_mf_softmax
 from simcoder.msedOO import msedOO
 from simcoder.msed import msed
 from simcoder.nsimplex import NSimplex
+from simcoder.jsd_dist import jsd_dist
 
 # Global constants - all global so that they can be shared amongst parallel instances
 
@@ -93,6 +94,34 @@ def run_cos(i :int):
     max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
     
     return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_cosine, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_cosine[:, category])
+
+def run_jsd(i :int):
+    """This runs an experiment finding the NNs using SED"""
+    """Uses the msed implementation"""
+
+    query = queries[i]
+    category = get_topcat(query, sm_data)
+    dists = getDists(query, data)
+    closest_indices = np.argsort(dists)  # the closest images to the query
+    
+    best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
+
+    relued_data = relu(data)
+    normed_data = l1_norm(relued_data)
+
+    jsd_results = jsd_dist(normed_data[query], normed_data) 
+    closest_indices = np.argsort(jsd_results)                  # the closest images
+    best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
+
+    # Now want to report results the total count in the category
+
+    encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
+    encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
+
+    max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
+    
+    return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
+
 
 def run_sed(i :int):
     """This runs an experiment finding the NNs using SED"""
@@ -174,7 +203,7 @@ def run_perfect_point(i: int):
     
     assert get_topcat(query, sm_data) == category, "Queries and categories must match."
 
-    dists = getDists(query, data)
+    dists = getDists(query, data) 
     closest_indices = np.argsort(dists)  # the closest images to the query
     
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
@@ -182,7 +211,7 @@ def run_perfect_point(i: int):
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
-
+    
     poly_query_distances = np.zeros( (num_poly_queries, 1000 * 1000))  # poly_query_distances is the distances from the queries to the all data
     for j in range(num_poly_queries):
         poly_query_distances[j] = getDists(poly_query_indexes[j], data)
@@ -215,13 +244,6 @@ def run_perfect_point(i: int):
 
 def run_average(i : int):
     """This just uses the average distance to all points from the queries as the distance"""
-    
-    global queries
-    global top_categories
-    global data
-    global sm_data
-    global threshold
-    global nn_at_which_k
 
     query = queries[i]
     category = get_topcat(query, sm_data)
@@ -286,6 +308,7 @@ def run_simplex(i : int):
     closest_indices = np.argsort(altitudes) # the closest images to the apex
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
 
+
     # Now want to report results the total count in the category
 
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
@@ -298,7 +321,8 @@ def run_simplex(i : int):
 def run_msed(i : int):
     "This runs msed for the queries plus the values from the dataset and takes the lowest."
 
-    normed_data = l1_norm(data)
+    relued = relu(data)
+    normed_data = l1_norm(relued)
 
     query = queries[i]
     category = get_topcat(query, sm_data)
@@ -441,3 +465,5 @@ def experimentselected(encodings: str, softmax: str, output_path: str, number_of
     saveData(cos_res,"cos",output_path)
     sed_res = run_experiment(run_sed,"sed")
     saveData(sed_res,"sed",output_path)
+    jsd_res = run_experiment(run_jsd,"jsd")
+    saveData(jsd_res,"jsd",output_path)
