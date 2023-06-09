@@ -73,5 +73,3 @@ run_batch:
 
 # python simcoder /input /output/mf_alexnet_fc6 alexnet_fc6 128 --dirs --format=csv
 # --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
-
-# Don't need to run anything - will run notebooks interactively.
