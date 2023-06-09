@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from sisap2023.lib.similarity import l1_norm, relu
+from sisap2023.utils.similarity import l1_norm, relu
 
                  
 def msed(X):

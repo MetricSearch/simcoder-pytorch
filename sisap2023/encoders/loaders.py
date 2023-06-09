@@ -6,7 +6,6 @@ from torch.utils.data import IterableDataset
 from torchvision.datasets import VisionDataset
 from torchvision.datasets.folder import default_loader, is_image_file
 
-from PIL import Image
 
 class UnlabelledImageFolder(VisionDataset):
     def __init__(self, root: str, transform: Optional[Callable] = None) -> None:

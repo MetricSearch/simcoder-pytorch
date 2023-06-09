@@ -2,7 +2,7 @@ import logging
 
 import click
 
-from models import get_availible_models
+from sisap2023.encoders.models import get_availible_models
 
 
 @click.command()

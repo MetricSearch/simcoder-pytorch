@@ -9,9 +9,9 @@ from pprint import pprint
 import torch
 from torch.utils.data import DataLoader
 
-from loaders import UnlabelledImageFolder
-from models import get_model
-from pref import log_timings
+from sisap2023.encoders.loaders import UnlabelledImageFolder
+from sisap2023.encoders.models import get_model
+
 
 logging.basicConfig(level=logging.INFO)
 

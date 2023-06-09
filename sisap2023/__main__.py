@@ -1,16 +1,16 @@
 import logging
 import time
 import click
-from encode import encode
-from show import show
-from list_models import list_models
-from experiment import experiment
-from experiment_strict import experimentstrict
-from experimentselected import experimentselected
 import multiprocessing as mp
 import sys
 
-sys.path.append("..")
+from sisap2023.encoders.encode import encode
+from sisap2023.encoders.show import show
+from sisap2023.encoders.list_models import list_models
+from sisap2023.experiments.experiment import experiment
+from sisap2023.experiments.experiment_strict import experimentstrict
+from sisap2023.experiments.experimentselected import experimentselected
+
 
 # let's output the info
 logging.basicConfig(level=logging.INFO, format='%(message)')

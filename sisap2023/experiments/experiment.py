@@ -9,12 +9,12 @@ import numpy as np
 import pandas as pd
 
 from scipy.spatial.distance import pdist, squareform
-from sisap2023.lib.count_cats import countNumberinCatGTThresh
+from sisap2023.utils.count_cats import countNumberinCatGTThresh
 
-from sisap2023.lib.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
-from sisap2023.lib.similarity import getDists, load_mf_encodings, load_mf_softmax
-from sisap2023.msed import msed
-from sisap2023.nsimplex import NSimplex
+from sisap2023.utils.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
+from sisap2023.utils.similarity import getDists, load_mf_encodings, load_mf_softmax
+from sisap2023.metrics.msed import msed
+from sisap2023.metrics.nsimplex import NSimplex
 
 # Global constants - all global so that they can be shared amongst parallel instances
 

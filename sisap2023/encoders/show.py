@@ -3,7 +3,7 @@ import logging
 import click
 import torchinfo as ti
 
-from models import get_model
+from sisap2023.encoders.models import get_model
 
 
 @click.command()
