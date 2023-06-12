@@ -9,9 +9,10 @@ import numpy as np
 import pandas as pd
 
 from scipy.spatial.distance import pdist, squareform
-from sisap2023.utils.count_cats import countNumberinCatGTThresh
+from sisap2023.utils.count_cats import count_number_in_cat_gt_thresh
 
-from sisap2023.utils.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
+from sisap2023.utils.count_cats import count_number_in_results_cated_as, find_cats_with_count_more_than_less_than
+, get_best_cats_in_subset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from sisap2023.utils.mirflickr import load_encodings
 from sisap2023.utils.distances import euclid_scalar, get_dists
 from sisap2023.metrics.msed import msed
@@ -48,7 +49,7 @@ def run_mean_point(i : int):
     closest_indices = np.argsort(dists)  # the closest images to the query
         
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
-    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    best_k_categorical = get_best_cats_in_subset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
@@ -77,7 +78,7 @@ def run_mean_point(i : int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
+    max_possible_in_cat = count_number_in_cat_gt_thresh(category,threshold,sm_data)
     
     return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
@@ -94,7 +95,7 @@ def run_perfect_point(i: int):
     closest_indices = np.argsort(dists)  # the closest images to the query
     
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
-    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    best_k_categorical = get_best_cats_in_subset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
@@ -125,7 +126,7 @@ def run_perfect_point(i: int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
+    max_possible_in_cat = count_number_in_cat_gt_thresh(category,threshold,sm_data)
     
     return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
@@ -138,7 +139,7 @@ def run_average(i : int):
     closest_indices = np.argsort(dists)  # the closest images to the query
         
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
-    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    best_k_categorical = get_best_cats_in_subset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
@@ -157,7 +158,7 @@ def run_average(i : int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
+    max_possible_in_cat = count_number_in_cat_gt_thresh(category,threshold,sm_data)
     
     return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
@@ -170,7 +171,7 @@ def run_simplex(i : int):
     closest_indices = np.argsort(dists)  # the closest images to the query
         
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
-    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    best_k_categorical = get_best_cats_in_subset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
@@ -200,7 +201,7 @@ def run_simplex(i : int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
+    max_possible_in_cat = count_number_in_cat_gt_thresh(category,threshold,sm_data)
     
     return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
@@ -213,7 +214,7 @@ def run_msed(i : int):
     
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
     category = get_topcat(query, sm_data)
-    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    best_k_categorical = get_best_cats_in_subset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
@@ -234,7 +235,7 @@ def run_msed(i : int):
     encodings_for_best_k_single = sm_data[best_k_for_one_query]  # the alexnet encodings for the best k average single query images
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]  # the alexnet encodings for the best 100 poly-query images
 
-    max_possible_in_cat = countNumberinCatGTThresh(category,threshold,sm_data)
+    max_possible_in_cat = count_number_in_cat_gt_thresh(category,threshold,sm_data)
     
     return query, max_possible_in_cat, category, categories[category], count_number_in_results_cated_as(category, best_k_for_one_query, sm_data), count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data), np.sum(encodings_for_best_k_single[:, category]), np.sum(encodings_for_best_k_poly[:, category])
 
@@ -329,7 +330,8 @@ def experiment(encodings: str, softmax: str, output_path: str, number_of_categor
     threshold = thresh
 
     print("Finding highly categorised categories.")
-    top_categories,counts = findCatsWithCountMoreThanLessThan(100,184,sm_data,threshold) # at least 80 and at most 195 - 101 cats sm values for resnet_50
+    top_categories,counts = find_cats_with_count_more_than_less_than
+(100,184,sm_data,threshold) # at least 80 and at most 195 - 101 cats sm values for resnet_50
     top_categories = top_categories[0: number_of_categories_to_test]  # subset the top categories
 
     queries = get_nth_categorical_query(top_categories,sm_data,initial_query_index)  # get one query in each categories

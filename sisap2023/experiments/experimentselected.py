@@ -11,10 +11,10 @@ import pandas as pd
 
 from scipy.spatial.distance import pdist, squareform
 from sisap2023.utils.count_cats import (
-    countNumberinCatGTThresh,
+    count_number_in_cat_gt_thresh,
     count_number_in_results_cated_as,
-    findCatsWithCountMoreThanLessThan,
-    getBestCatsInSubset,
+    find_cats_with_count_more_than_less_than,
+    get_best_cats_in_subset,
     get_best_cat_index,
 )
 from sisap2023.utils.mirflickr import load_encodings
@@ -52,7 +52,7 @@ def select_poly_query_images(i: int, num_poly_queries: int) -> np.array:
     category, best_k_for_one_query = categories[i], best_k_for_queries[i]
 
     # the closest indices in category order - most peacocky peacocks etc.
-    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)
+    best_k_categorical = get_best_cats_in_subset(category, best_k_for_one_query, sm_data)
 
     poly_query_indexes = best_k_categorical[0:num_poly_queries]  # These are the indices that might be chosen by a human
     poly_query_data = data[poly_query_indexes]
@@ -67,7 +67,7 @@ def compute_results(i: int, distances: np.array) -> tuple:
     encodings_for_best_k_single = sm_data[best_k_for_one_query]
     encodings_for_best_k_poly = sm_data[best_k_for_poly_indices]
 
-    max_possible_in_cat = countNumberinCatGTThresh(category, threshold, sm_data)
+    max_possible_in_cat = count_number_in_cat_gt_thresh(category, threshold, sm_data)
 
     return (
         query,
@@ -314,7 +314,8 @@ def experimentselected(
 
     print("Finding highly categorised categories.")
     # at least 80 and at most 195 - 101 cats sm values for resnet_50
-    top_categories, counts = findCatsWithCountMoreThanLessThan(100, 184, sm_data, threshold)
+    top_categories, counts = find_cats_with_count_more_than_less_than
+(100, 184, sm_data, threshold)
     top_categories = top_categories[0:number_of_categories_to_test]  # subset the top categories
 
     with open("selected_queries.txt", "r") as f:

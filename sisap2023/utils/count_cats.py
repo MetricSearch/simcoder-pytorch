@@ -23,7 +23,7 @@ def findHighlyCategorisedInDataset(smData : np.array,thresh : float) -> Tuple[np
 
 def count_number_in_results_in_cat(cat,thresh,result_indices,sm_data):
     """Returns the number of results for which cat is greater than thresh
-       Use the other function countNumberinCatGTThresh is just interested in encoding totals"""
+       Use the other function count_number_in_cat_gt_thresh is just interested in encoding totals"""
     results = sm_data[result_indices]
     return ( results[:,cat] > thresh ).sum()
 
@@ -49,14 +49,14 @@ def get_best_cat_index(category_required: int, sm_data: np.array) -> np.array:
     best_nnids = np.flip(np.argsort(indices))
     return best_nnids
 
-def getBestCatsInSubset(category_required: int, subset: np.array, sm_data: np.array) -> np.array:
+def get_best_cats_in_subset(category_required: int, subset: np.array, sm_data: np.array) -> np.array:
     """Return the indices of those images in nn_ids sorted by the category_required in the sm_data"""
     sm_values_of_interest = sm_data[subset]   # the sm values for each of the nns
     indices = sm_values_of_interest[:,category_required] # activation value for the category of interest for each nn
     best_nnids = np.flip(np.argsort(indices))
     return subset[best_nnids]
 
-def countNumberinCatGTThresh(category: int,thresh: float,sm_data: np.array) -> int:
+def count_number_in_cat_gt_thresh(category: int,thresh: float,sm_data: np.array) -> int:
     """Returns the number of entries in encodings for which cat is greater than threshold
        Use the other function countNumberInResultsInCat if counting results"""
     return (sm_data[:,category] > thresh).sum()
@@ -71,7 +71,7 @@ def findCatsWithCountMoreThan(n: int,smData: np.array,thresh: float) -> np.array
     filtered = unique[counts>n] 
     return filtered
 
-def findCatsWithCountMoreThanLessThan(n: int,k: int,smData: np.array,thresh: float) -> Tuple[np.array, np.array]:
+def find_cats_with_count_more_than_less_than(n: int,k: int,smData: np.array,thresh: float) -> Tuple[np.array, np.array]:
     """Find the categories and their counts with more than n instances and less than k of a category whose value is nore than threshold"""
     vals = np.max(smData,axis=1) # 0 is rows, vals is the highest value in each row
     highest_labels_per_row = np.argmax(smData,axis=1) # the index of the highest value in each row

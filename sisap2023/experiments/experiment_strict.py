@@ -10,7 +10,8 @@ import pandas as pd
 
 from scipy.spatial.distance import pdist, squareform
 
-from sisap2023.utils.count_cats import findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
+from sisap2023.utils.count_cats import find_cats_with_count_more_than_less_than
+, get_best_cats_in_subset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from sisap2023.utils.mirflickr import load_encodings
 from sisap2023.utils.distances import get_dists
 from sisap2023.metrics.msed import msed
@@ -77,7 +78,7 @@ def run_mean_point(i : int):
     closest_indices = np.argsort(dists)  # the closest images to the query
         
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
-    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    best_k_categorical = get_best_cats_in_subset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
@@ -128,7 +129,7 @@ def run_perfect_point(i: int):
     closest_indices = np.argsort(dists)  # the closest images to the query
     
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
-    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    best_k_categorical = get_best_cats_in_subset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
@@ -177,7 +178,7 @@ def run_average(i : int):
     closest_indices = np.argsort(dists)  # the closest images to the query
         
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
-    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    best_k_categorical = get_best_cats_in_subset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
@@ -214,7 +215,7 @@ def run_simplex(i : int):
     closest_indices = np.argsort(dists)  # the closest images to the query
         
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
-    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    best_k_categorical = get_best_cats_in_subset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
@@ -262,7 +263,7 @@ def run_msed(i : int):
     
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
     category = get_topcat(query, sm_data)
-    best_k_categorical = getBestCatsInSubset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
+    best_k_categorical = get_best_cats_in_subset(category, best_k_for_one_query, sm_data)  # the closest indices in category order - most peacocky peacocks etc.
     poly_query_indexes = best_k_categorical[0:6]  # These are the indices that might be chosen by a human
     poly_query_data = data[poly_query_indexes]  # the actual datapoints for the queries
     num_poly_queries = len(poly_query_indexes)
@@ -369,7 +370,8 @@ def experimentstrict(encodings: str, softmax: str, output_path: str, number_of_c
     threshold = thresh
 
     print("Finding highly categorised categories.")
-    top_categories,counts = findCatsWithCountMoreThanLessThan(80,195,sm_data,threshold) # at least 80 and at most 195 - 101 cats
+    top_categories,counts = find_cats_with_count_more_than_less_than
+(80,195,sm_data,threshold) # at least 80 and at most 195 - 101 cats
     top_categories = top_categories[0: number_of_categories_to_test]  # subset the top categories
 
     queries = get_nth_categorical_query(top_categories,sm_data,initial_query_index)  # get one query in each categories
