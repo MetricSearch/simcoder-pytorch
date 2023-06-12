@@ -314,8 +314,7 @@ def experimentselected(
 
     print("Finding highly categorised categories.")
     # at least 80 and at most 195 - 101 cats sm values for resnet_50
-    top_categories, counts = find_cats_with_count_more_than_less_than
-(100, 184, sm_data, threshold)
+    top_categories, counts = find_cats_with_count_more_than_less_than(100, 184, sm_data, threshold)
     top_categories = top_categories[0:number_of_categories_to_test]  # subset the top categories
 
     with open("selected_queries.txt", "r") as f:
