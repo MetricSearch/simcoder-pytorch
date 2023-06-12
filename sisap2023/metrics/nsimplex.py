@@ -3,6 +3,8 @@ import warnings
 import numpy as np
 from tqdm import trange
 
+from sisap2023.utils.distances import euclid_scalar
+
 
 class NSimplex (object):
 
@@ -116,3 +118,27 @@ class NSimplex (object):
             y = np.concatenate((y, z), axis=1)
 
         return np.sqrt(((x - y) ** 2).sum(axis=1))
+
+
+def fromSimplexPoint(poly_query_distances: np.array, inter_pivot_distances: np.array, nn_dists:  np.array) -> np.array:
+    """poly_query_data is the set of reference points with which to build the simplex
+       inter_pivot_distances are the inter-pivot distances with which to build the base simplex
+       nn_dists is a column vec of distances, each a bit more than the nn distance from each ref to the rest of the data set
+       ie the "perfect" intersection to the rest of the set
+       Returns a np.array containing the distances"""
+
+    nsimp = NSimplex()
+    nsimp.build_base(inter_pivot_distances, False)
+
+    # second param a (B,N)-shaped array containing distances to the N pivots for B objects.
+    perf_point = nsimp._get_apex(nsimp._base, nn_dists)    # was projectWithDistances in matlab
+
+    #print("getting dists")
+
+    dists = np.zeros(1000 * 1000)
+    for i in range(1000 * 1000):
+        distvec = poly_query_distances[:, i]                      # a row vec of distances
+        pr = nsimp._get_apex(nsimp._base, np.transpose(distvec))
+        dists[i] = euclid_scalar(pr, perf_point)  # is this right - see comment in simplex_peacock on this!
+
+    return dists
