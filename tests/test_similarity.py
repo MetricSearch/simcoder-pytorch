@@ -1,5 +1,5 @@
 import unittest
-from sisap2023.utils.similarity import *
+from sisap2023.utils.mirflickr import *
 
 class TestSimilarity(unittest.TestCase):
     def test_encode(self):

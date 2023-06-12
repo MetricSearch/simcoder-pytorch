@@ -11,7 +11,8 @@ import pandas as pd
 from scipy.spatial.distance import pdist, squareform
 
 from sisap2023.utils.count_cats import findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
-from sisap2023.utils.similarity import getDists, load_encodings, load_mf_softmax
+from sisap2023.utils.mirflickr import load_encodings
+from sisap2023.utils.distances import get_dists
 from sisap2023.metrics.msed import msed
 from sisap2023.metrics.nsimplex import NSimplex
 
@@ -72,7 +73,7 @@ def run_mean_point(i : int):
         
     assert get_topcat(query, sm_data) == category, "Queries and categories must match."
 
-    dists = getDists(query, data)
+    dists = get_dists(query, data)
     closest_indices = np.argsort(dists)  # the closest images to the query
         
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
@@ -83,7 +84,7 @@ def run_mean_point(i : int):
 
     poly_query_distances = np.zeros( (num_poly_queries, 1000 * 1000))  # poly_query_distances is the distances from the queries to the all data
     for j in range(num_poly_queries):
-        poly_query_distances[j] = getDists(poly_query_indexes[j], data)
+        poly_query_distances[j] = get_dists(poly_query_indexes[j], data)
 
 
     # next line from Italian documentation: README.md line 25
@@ -123,7 +124,7 @@ def run_perfect_point(i: int):
     
     assert get_topcat(query, sm_data) == category, "Queries and categories must match."
 
-    dists = getDists(query, data)
+    dists = get_dists(query, data)
     closest_indices = np.argsort(dists)  # the closest images to the query
     
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
@@ -134,7 +135,7 @@ def run_perfect_point(i: int):
 
     poly_query_distances = np.zeros( (num_poly_queries, 1000 * 1000))  # poly_query_distances is the distances from the queries to the all data
     for j in range(num_poly_queries):
-        poly_query_distances[j] = getDists(poly_query_indexes[j], data)
+        poly_query_distances[j] = get_dists(poly_query_indexes[j], data)
 
     # Here we will use some estimate of the nn distance to each query to construct a
     # new point in the nSimplex projection space formed by the poly query objects
@@ -172,7 +173,7 @@ def run_average(i : int):
 
     query = queries[i]
     category = get_topcat(query, sm_data)
-    dists = getDists(query, data)
+    dists = get_dists(query, data)
     closest_indices = np.argsort(dists)  # the closest images to the query
         
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
@@ -183,7 +184,7 @@ def run_average(i : int):
 
     poly_query_distances = np.zeros( (num_poly_queries, 1000 * 1000))  # poly_query_distances is the distances from the queries to the all data
     for j in range(num_poly_queries):
-        poly_query_distances[j] = getDists(poly_query_indexes[j], data)
+        poly_query_distances[j] = get_dists(poly_query_indexes[j], data)
 
     row_sums = np.sum(poly_query_distances,axis=0)
     lowest_sum_indices = np.argsort(row_sums)
@@ -209,7 +210,7 @@ def run_simplex(i : int):
 
     query = queries[i]
     category = get_topcat(query, sm_data)
-    dists = getDists(query, data)
+    dists = get_dists(query, data)
     closest_indices = np.argsort(dists)  # the closest images to the query
         
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
@@ -220,7 +221,7 @@ def run_simplex(i : int):
 
     poly_query_distances = np.zeros( (num_poly_queries, 1000 * 1000))  # poly_query_distances is the distances from the queries to the all data
     for j in range(num_poly_queries):
-        poly_query_distances[j] = getDists(poly_query_indexes[j], data)
+        poly_query_distances[j] = get_dists(poly_query_indexes[j], data)
 
     inter_pivot_distances = squareform(pdist(poly_query_data, metric=euclid_scalar)) # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
 
@@ -256,7 +257,7 @@ def run_msed(i : int):
     global nn_at_which_k
 
     query = queries[i]
-    dists = getDists(query, data)
+    dists = get_dists(query, data)
     closest_indices = np.argsort(dists)  # the closest images to the query
     
     best_k_for_one_query = closest_indices[0:nn_at_which_k]  # the k closest indices in data to the query
