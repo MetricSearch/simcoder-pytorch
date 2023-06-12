@@ -13,10 +13,10 @@ from sisap2023.utils.count_cats import countNumberinCatGTThresh
 
 from sisap2023.utils.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from sisap2023.utils.mirflickr import load_encodings
-from sisap2023.utils.distances import get_dists, l1_norm, l2_norm, relu
+from sisap2023.utils.distances import euclid_scalar, get_dists, l1_norm, l2_norm, relu
 from sisap2023.metrics.msedOO import msedOO
 from sisap2023.metrics.msed import msed
-from sisap2023.metrics.nsimplex import NSimplex
+from sisap2023.metrics.nsimplex import NSimplex, fromSimplexPoint
 from sisap2023.metrics.jsd_dist import jsd_dist
 
 # Global constants - all global so that they can be shared amongst parallel instances
@@ -31,14 +31,6 @@ categories = None # The categorical strings
 
 # Functions:
 
-def euclid_scalar(p1: np.array, p2: np.array):
-    distances = math.sqrt(np.sum((p1 - p2) ** 2))
-    return distances
-
-def getQueries(categories: np.array, sm_data: np.array) -> List[int]:
-    """Return the most (0th) categorical query in each of the supplied categories"""
-    return get_nth_categorical_query( categories, sm_data, 0)
-
 def get_nth_categorical_query(categories: np.array, sm_data: np.array, n: int) -> List[int]:
     """Return the nth categorical query in each of the supplied categories"""
     results = []
@@ -47,28 +39,6 @@ def get_nth_categorical_query(categories: np.array, sm_data: np.array, n: int) -
         results.append(cats[n]) # just get the nth categorical one
     return results
 
-def fromSimplexPoint(poly_query_distances: np.array, inter_pivot_distances: np.array, nn_dists:  np.array) -> np.array:
-    """poly_query_data is the set of reference points with which to build the simplex
-       inter_pivot_distances are the inter-pivot distances with which to build the base simplex
-       nn_dists is a column vec of distances, each a bit more than the nn distance from each ref to the rest of the data set
-       ie the "perfect" intersection to the rest of the set
-       Returns a np.array containing the distances"""
-
-    nsimp = NSimplex()
-    nsimp.build_base(inter_pivot_distances, False)
-
-    # second param a (B,N)-shaped array containing distances to the N pivots for B objects.
-    perf_point = nsimp._get_apex(nsimp._base, nn_dists)    # was projectWithDistances in matlab
-
-    #print("getting dists")
-
-    dists = np.zeros(1000 * 1000)
-    for i in range(1000 * 1000):
-        distvec = poly_query_distances[:, i]                      # a row vec of distances
-        pr = nsimp._get_apex(nsimp._base, np.transpose(distvec))
-        dists[i] = euclid_scalar(pr, perf_point)  # is this right - see comment in simplex_peacock on this!
-
-    return dists
 
 def run_cos(i :int):
     """This runs an experiment finding the NNs using cosine distance"""
