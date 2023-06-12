@@ -2,7 +2,6 @@ import logging
 import time
 import click
 import multiprocessing as mp
-import sys
 
 from sisap2023.encoders.encode import encode
 from sisap2023.encoders.show import show

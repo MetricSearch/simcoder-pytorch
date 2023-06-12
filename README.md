@@ -42,8 +42,3 @@ To run the experiments:
     This notebook also contains:
         a. the results from all the 'good' runs of this notebook.
         b. the index,query,category and category string	of the queries used.
-
-
-
-
-

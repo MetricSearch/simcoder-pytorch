@@ -18,19 +18,18 @@ def get_mf_image(index: int) -> Image.Image:
     img = default_loader(str(path))
     return img
 
-
-def load_encodings_mat(encodings_dir: Path, key: str = 'features') -> np.array:
+def load_encodings(encodings_dir: Path, key: str = 'features') -> np.array:
     paths = encodings_dir.glob("*.mat")
     paths = sorted(paths, key=lambda p: int(p.stem))
     encodings = [loadmat(p)[key] for p in paths]
     encodings = np.concatenate(encodings)
     return encodings
 
-def load_mf_encodings(encodings_dir: Path) -> np.array:
-    return load_encodings_mat(encodings_dir, key='features')
+# def load_mf_encodings(encodings_dir: Path) -> np.array:
+#     return load_encodings_mat(encodings_dir, key='features')
 
-def load_mf_softmax(encodings_dir: Path) -> np.array:
-    return load_encodings_mat(encodings_dir, key='probVecs')
+# def load_mf_softmax(encodings_dir: Path) -> np.array:
+#    return load_encodings_mat(encodings_dir, key='probVecs')
 
 
 def encode(query_image: Image.Image, model_name: str) -> np.array:

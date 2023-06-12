@@ -12,7 +12,7 @@ from scipy.spatial.distance import pdist, squareform
 from sisap2023.utils.count_cats import countNumberinCatGTThresh
 
 from sisap2023.utils.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
-from sisap2023.utils.similarity import getDists, l1_norm, l2_norm, relu, load_mf_encodings, load_mf_softmax
+from sisap2023.utils.similarity import getDists, l1_norm, l2_norm, relu, load_encodings
 from sisap2023.metrics.msedOO import msedOO
 from sisap2023.metrics.msed import msed
 from sisap2023.metrics.nsimplex import NSimplex
@@ -427,10 +427,10 @@ def experimentselected(encodings: str, softmax: str, output_path: str, number_of
     # Initialisation of globals
 
     print(f"Loading {encodings} data encodings.")
-    data = load_mf_encodings(encodings) # load resnet 50 encodings
+    data = load_encodings(encodings) # load resnet 50 encodings
 
     print(f"Loading {softmax} softmax encodings.")
-    sm_data = load_mf_encodings(softmax) # load the softmax data
+    sm_data = load_encodings(softmax) # load the softmax data
 
     with open("imagenet_classes.txt", "r") as f:
         categories = [s.strip() for s in f.readlines()]
