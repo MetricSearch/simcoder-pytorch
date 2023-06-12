@@ -15,7 +15,7 @@ from sisap2023.utils.count_cats import count_number_in_results_cated_as, findCat
 from sisap2023.utils.mirflickr import load_encodings
 from sisap2023.utils.distances import euclid_scalar, get_dists
 from sisap2023.metrics.msed import msed
-from sisap2023.metrics.nsimplex import fromSimplexPoint
+from sisap2023.metrics.nsimplex import NSimplex, fromSimplexPoint
 
 # Global constants - all global so that they can be shared amongst parallel instances
 
