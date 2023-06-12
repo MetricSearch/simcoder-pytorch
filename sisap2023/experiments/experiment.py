@@ -13,7 +13,7 @@ from sisap2023.utils.count_cats import countNumberinCatGTThresh
 
 from sisap2023.utils.count_cats import count_number_in_results_cated_as, findCatsWithCountMoreThanLessThan, getBestCatsInSubset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from sisap2023.utils.mirflickr import load_encodings
-from sisap2023.utils.distances import get_dists
+from sisap2023.utils.distances import euclid_scalar, get_dists
 from sisap2023.metrics.msed import msed
 from sisap2023.metrics.nsimplex import NSimplex
 
@@ -28,12 +28,6 @@ nn_at_which_k = None # num of records to compare in results
 categories = None # The categorical strings
 
 # Functions:
-
-
-
-def getQueries(categories: np.array, sm_data: np.array) -> List[int]:
-    """Return the most (0th) categorical query in each of the supplied categories"""
-    return get_nth_categorical_query( categories, sm_data, 0)
 
 def get_nth_categorical_query(categories: np.array, sm_data: np.array, n: int) -> List[int]:
     """Return the nth categorical query in each of the supplied categories"""
@@ -114,13 +108,6 @@ def run_mean_point(i : int):
 def run_perfect_point(i: int):
     """This runs an experiment with the the apex distance based on a NN distance from a simplex point"""
 
-    global queries
-    global top_categories
-    global data
-    global sm_data
-    global threshold
-    global nn_at_which_k
-
     query = queries[i]
     category = get_topcat(query, sm_data)
     
@@ -167,13 +154,6 @@ def run_perfect_point(i: int):
 
 def run_average(i : int):
     """This just uses the average distance to all points from the queries as the distance"""
-    
-    global queries
-    global top_categories
-    global data
-    global sm_data
-    global threshold
-    global nn_at_which_k
 
     query = queries[i]
     category = get_topcat(query, sm_data)
@@ -206,13 +186,6 @@ def run_average(i : int):
 
 def run_simplex(i : int):
     "This creates a simplex and calculates the simplex height for each of the other points and takes the best n to be the query solution"
-
-    global queries
-    global top_categories
-    global data
-    global sm_data
-    global threshold
-    global nn_at_which_k
 
     query = queries[i]
     category = get_topcat(query, sm_data)
@@ -256,13 +229,6 @@ def run_simplex(i : int):
 
 def run_msed(i : int):
     "This runs msed for the queries plus the values from the dataset and takes the lowest."
-
-    global queries
-    global top_categories
-    global data
-    global sm_data
-    global threshold
-    global nn_at_which_k
 
     query = queries[i]
     dists = get_dists(query, data)
