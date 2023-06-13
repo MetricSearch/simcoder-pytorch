@@ -39,6 +39,7 @@ num_poly_queries = 6
 
 # Functions:
 
+
 def get_nth_categorical_query(categories: np.array, sm_data: np.array, n: int) -> List[int]:
     """Return the nth categorical query in each of the supplied categories"""
     results = []
@@ -49,7 +50,7 @@ def get_nth_categorical_query(categories: np.array, sm_data: np.array, n: int) -
 
 
 def select_poly_query_images(idx: int) -> Tuple[np.array, np.array]:
-    """ Takes the k-nn for the categories query image,
+    """Takes the k-nn for the categories query image,
         orders them based on that categories softmax activation,
         returns the first num_poly_queries.
 
@@ -66,7 +67,7 @@ def select_poly_query_images(idx: int) -> Tuple[np.array, np.array]:
 
     # These are the indices that might be chosen by a human
     poly_query_indexes = best_k_categorical[0:num_poly_queries]
-    
+
     # return the data and the indices
     poly_query_data = data[poly_query_indexes]
     return poly_query_data, poly_query_indexes
@@ -266,13 +267,19 @@ def run_experiment(the_func, experiment_name: str, output_path: str):
     results_df.to_csv(Path(output_path) / f"{experiment_name}.csv")
 
 
-def compute_best_k_for_queries(queries: List[int]):
+def compute_best_k_for_queries(queries: List[int], k: int):
     def closest(query):
         dists = get_dists(query, data)
         closest_indices = np.argsort(dists)
-        return closest_indices[0:nn_at_which_k]
+        return closest_indices[0:k]
 
     return [closest(q) for q in queries]
+
+
+def load_imagenet_class_labels() -> List[str]:
+    with open("imagenet_classes.txt", "r") as f:
+        category_names = [s.strip() for s in f.readlines()]
+    return category_names
 
 
 @click.command()
@@ -312,7 +319,6 @@ def experimentselected(
     print(f"initial_query_index: {initial_query_index}")
     print(f"thresh: {thresh}")
 
-
     # Initialisation of globals
 
     print(f"Loading {encodings} data encodings.")
@@ -321,35 +327,31 @@ def experimentselected(
     print(f"Loading {softmax} softmax encodings.")
     sm_data = load_encodings(Path(softmax))  # load the softmax data
 
-    with open("imagenet_classes.txt", "r") as f:
-        category_names = [s.strip() for s in f.readlines()]
-
-    print("Loaded datasets")
-
+    category_names = load_imagenet_class_labels()
     nn_at_which_k = k
     threshold = thresh
 
-    print("Finding highly categorised categories.")
     # at least 80 and at most 195 - 101 cats sm values for resnet_50
-    top_categories, counts = find_cats_with_count_more_than_less_than(100, 184, sm_data, threshold)
+    print("Finding highly categorised categories.")
+    top_categories, _ = find_cats_with_count_more_than_less_than(100, 184, sm_data, threshold)
     top_categories = top_categories[0:number_of_categories_to_test]  # subset the top categories
 
-    with open("selected_queries.txt", "r") as f:
-        queries = [int(line.strip()) for line in f]
+    # with open("selected_queries.txt", "r") as f:
+    #    queries = [int(line.strip()) for line in f]
 
     # get one query in each categories
+    print(f"Finding {initial_query_index} categorical query for each category.")
     queries = get_nth_categorical_query(top_categories, sm_data, initial_query_index)
 
-    print(queries)
-
-    best_k_for_queries = compute_best_k_for_queries(queries)
+    print("Finding k-nn for each query.")
+    best_k_for_queries = compute_best_k_for_queries(queries, nn_at_which_k)
 
     # end of Initialisation of globals - not updated after here
 
     run_experiment(run_perfect_point, "perfect_point", output_path)
     run_experiment(run_mean_point, "mean_point", output_path)
     run_experiment(run_simplex, "simplex", output_path)
-    run_experiment(run_average, "average", output_path) 
+    run_experiment(run_average, "average", output_path)
     run_experiment(run_msed, "msed", output_path)
     run_experiment(run_cos, "cos", output_path)
     run_experiment(run_sed, "sed", output_path)
