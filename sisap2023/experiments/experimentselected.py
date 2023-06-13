@@ -32,7 +32,7 @@ data = None  # the resnet 50 encodings
 sm_data = None  # the softmax data
 threshold = None
 nn_at_which_k = None  # num of records to compare in results
-categories = None  # The categorical strings
+category_names = None  # The categorical strings
 best_k_for_queries = None
 num_poly_queries = 6
 
@@ -48,8 +48,10 @@ def get_nth_categorical_query(categories: np.array, sm_data: np.array, n: int) -
     return results
 
 
-def select_poly_query_images(i: int, num_poly_queries: int) -> np.array:
-    category, best_k_for_one_query = categories[i], best_k_for_queries[i]
+def select_poly_query_images(i: int) -> np.array:
+    category, best_k_for_one_query = top_categories[i], best_k_for_queries[i]
+
+    print("category ", category)
 
     # the closest indices in category order - most peacocky peacocks etc.
     best_k_categorical = get_best_cats_in_subset(category, best_k_for_one_query, sm_data)
@@ -60,7 +62,7 @@ def select_poly_query_images(i: int, num_poly_queries: int) -> np.array:
 
 
 def compute_results(i: int, distances: np.array) -> tuple:
-    query, category, best_k_for_one_query = queries[i], categories[i], best_k_for_queries[i]
+    query, category, best_k_for_one_query = queries[i], top_categories[i], best_k_for_queries[i]
     closest_indices = np.argsort(distances)  # the closest images
     best_k_for_poly_indices = closest_indices[0:nn_at_which_k]
 
@@ -73,7 +75,7 @@ def compute_results(i: int, distances: np.array) -> tuple:
         query,
         max_possible_in_cat,
         category,
-        categories[category],
+        category_names[category],
         count_number_in_results_cated_as(category, best_k_for_queries[i], sm_data),
         count_number_in_results_cated_as(category, best_k_for_poly_indices, sm_data),
         np.sum(encodings_for_best_k_single[:, category]),
@@ -83,7 +85,7 @@ def compute_results(i: int, distances: np.array) -> tuple:
 
 def run_cos(i: int):
     """This runs an experiment finding the NNs using cosine distance"""
-    query, category, best_k_for_one_query = queries[i], categories[i], best_k_for_queries[i]
+    query, category, best_k_for_one_query = queries[i], top_categories[i], best_k_for_queries[i]
     normed_data = l2_norm(data)
     distances = get_dists(query, normed_data)  # cosine distance same order as l2 norm of data
     return compute_results(query, category, sm_data, distances, nn_at_which_k, best_k_for_one_query)
@@ -198,10 +200,11 @@ def run_simplex(i: int):
 
 def run_msed(i: int):
     "This runs msed for the queries plus the values from the dataset and takes the lowest."
-    poly_query_data, poly_query_indexes = select_poly_query_images(i)
+    _, poly_query_indexes = select_poly_query_images(i)
 
     relued = relu(data)
     normed_data = l1_norm(relued)
+    poly_query_data = normed_data[poly_query_indexes]
 
     base = msedOO(np.array(poly_query_data))
     msed_results = base.msed(normed_data)
@@ -216,7 +219,7 @@ def run_experiment(the_func, experiment_name: str, output_path: str):
     assert len(queries) == top_categories.size, "Queries and top_categories must be the same size."
 
     num_of_experiments = top_categories.size
-
+    print(num_of_experiments)
     max_cpus = mp.cpu_count()
     use_cpus = max_cpus // 2
 
@@ -287,14 +290,18 @@ def experimentselected(
     global threshold
     global top_categories
     global queries
-    global categories
+    global category_names
     global best_k_for_queries
 
-    print("Running experiment100.")
+    print("Running experimentselected.")
     print(f"encodings: {encodings}")
     print(f"softmax: {softmax}")
     print(f"output_path: {output_path}")
     print(f"initial_query_index: {initial_query_index}")
+    print(f"k: {k}")
+    print(f"initial_query_index: {initial_query_index}")
+    print(f"thresh: {thresh}")
+
 
     # Initialisation of globals
 
@@ -305,7 +312,7 @@ def experimentselected(
     sm_data = load_encodings(Path(softmax))  # load the softmax data
 
     with open("imagenet_classes.txt", "r") as f:
-        categories = [s.strip() for s in f.readlines()]
+        category_names = [s.strip() for s in f.readlines()]
 
     print("Loaded datasets")
 
@@ -320,9 +327,8 @@ def experimentselected(
     with open("selected_queries.txt", "r") as f:
         queries = [int(line.strip()) for line in f]
 
-    queries = get_nth_categorical_query(
-        top_categories, sm_data, initial_query_index
-    )  # get one query in each categories
+    # get one query in each categories
+    queries = get_nth_categorical_query(top_categories, sm_data, initial_query_index)
 
     print(queries)
 
@@ -330,11 +336,11 @@ def experimentselected(
 
     # end of Initialisation of globals - not updated after here
 
-    # run_experiment(run_perfect_point, "perfect_point", output_path)
-    # run_experiment(run_mean_point, "mean_point", output_path)
-    # run_experiment(run_simplex, "simplex", output_path)
-    # run_experiment(run_average, "average", output_path)
-    # run_experiment(run_msed, "msed", output_path)
-    # run_experiment(run_cos, "cos", output_path)
-    # run_experiment(run_sed, "sed", output_path)
+    run_experiment(run_perfect_point, "perfect_point", output_path)
+    run_experiment(run_mean_point, "mean_point", output_path)
+    run_experiment(run_simplex, "simplex", output_path)
+    run_experiment(run_average, "average", output_path) 
+    run_experiment(run_msed, "msed", output_path)
+    run_experiment(run_cos, "cos", output_path)
+    run_experiment(run_sed, "sed", output_path)
     run_experiment(run_jsd, "jsd", output_path)

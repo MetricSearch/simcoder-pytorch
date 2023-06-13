@@ -11,8 +11,7 @@ import pandas as pd
 from scipy.spatial.distance import pdist, squareform
 from sisap2023.utils.count_cats import count_number_in_cat_gt_thresh
 
-from sisap2023.utils.count_cats import count_number_in_results_cated_as, find_cats_with_count_more_than_less_than
-, get_best_cats_in_subset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
+from sisap2023.utils.count_cats import count_number_in_results_cated_as, find_cats_with_count_more_than_less_than, get_best_cats_in_subset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from sisap2023.utils.mirflickr import load_encodings
 from sisap2023.utils.distances import euclid_scalar, get_dists
 from sisap2023.metrics.msed import msed
@@ -330,8 +329,7 @@ def experiment(encodings: str, softmax: str, output_path: str, number_of_categor
     threshold = thresh
 
     print("Finding highly categorised categories.")
-    top_categories,counts = find_cats_with_count_more_than_less_than
-(100,184,sm_data,threshold) # at least 80 and at most 195 - 101 cats sm values for resnet_50
+    top_categories,counts = find_cats_with_count_more_than_less_than(100,184,sm_data,threshold) # at least 80 and at most 195 - 101 cats sm values for resnet_50
     top_categories = top_categories[0: number_of_categories_to_test]  # subset the top categories
 
     queries = get_nth_categorical_query(top_categories,sm_data,initial_query_index)  # get one query in each categories
