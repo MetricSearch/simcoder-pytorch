@@ -60,6 +60,8 @@ def select_poly_query_images(idx: int) -> Tuple[np.array, np.array]:
     Returns:
         Tuple[np.array, np.array]: The image embedding and indices for the query images.
     """
+    # TODO: the polyquery image index for each top cat could be precomputed
+    # and stored in a list.
     category, best_k_for_one_query = top_categories[idx], best_k_for_queries[idx]
 
     # the closest indices in category order - most peacocky peacocks etc.
