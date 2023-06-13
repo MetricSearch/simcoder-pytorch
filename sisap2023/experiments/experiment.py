@@ -13,7 +13,8 @@ from sisap2023.utils.count_cats import count_number_in_cat_gt_thresh
 
 from sisap2023.utils.count_cats import count_number_in_results_cated_as, find_cats_with_count_more_than_less_than, get_best_cats_in_subset, get_best_cat_index, count_number_in_results_in_cat, findHighlyCategorisedInDataset, get_topcat
 from sisap2023.utils.mirflickr import load_encodings
-from sisap2023.utils.distances import euclid_scalar, get_dists
+from sisap2023.metrics.euc import euc_scalar
+from sisap2023.utils.distances import get_dists
 from sisap2023.metrics.msed import msed
 from sisap2023.metrics.nsimplex import NSimplex, fromSimplexPoint
 
@@ -59,7 +60,7 @@ def run_mean_point(i : int):
 
 
     # next line from Italian documentation: README.md line 25
-    inter_pivot_distances = squareform(pdist(poly_query_data, metric=euclid_scalar))  # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
+    inter_pivot_distances = squareform(pdist(poly_query_data, metric=euc_scalar))  # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
 
     apex_distances = np.mean( inter_pivot_distances, axis=1)
 
@@ -114,7 +115,7 @@ def run_perfect_point(i: int):
         ten_nn_dists[i] = sortedDists[nnToUse]
 
     # next line from Italian documentation: README.md line 25
-    inter_pivot_distances = squareform(pdist(poly_query_data, metric=euclid_scalar))  # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
+    inter_pivot_distances = squareform(pdist(poly_query_data, metric=euc_scalar))  # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
     distsToPerf = fromSimplexPoint(poly_query_distances, inter_pivot_distances,ten_nn_dists)  # was multipled by 1.1 in some versions!
 
     closest_indices = np.argsort(distsToPerf)  # the closest images to the perfect point
@@ -179,7 +180,7 @@ def run_simplex(i : int):
     for j in range(num_poly_queries):
         poly_query_distances[j] = get_dists(poly_query_indexes[j], data)
 
-    inter_pivot_distances = squareform(pdist(poly_query_data, metric=euclid_scalar)) # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
+    inter_pivot_distances = squareform(pdist(poly_query_data, metric=euc_scalar)) # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
 
     # Simplex Projection
     # First calculate the distances from the queries to all data as we will be needing them again
