@@ -2,8 +2,7 @@ import warnings
 
 import numpy as np
 from tqdm import trange
-
-from sisap2023.utils.distances import euclid_scalar
+from sisap2023.metrics.euc import euc_scalar
 
 
 class NSimplex (object):
@@ -139,6 +138,6 @@ def fromSimplexPoint(poly_query_distances: np.array, inter_pivot_distances: np.a
     for i in range(1000 * 1000):
         distvec = poly_query_distances[:, i]                      # a row vec of distances
         pr = nsimp._get_apex(nsimp._base, np.transpose(distvec))
-        dists[i] = euclid_scalar(pr, perf_point)  # is this right - see comment in simplex_peacock on this!
+        dists[i] = euc_scalar(pr, perf_point)  # is this right - see comment in simplex_peacock on this!
 
     return dists

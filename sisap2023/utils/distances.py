@@ -1,6 +1,6 @@
 import math
 import numpy as np
-import sisap2023.metrics.euc as euc
+from sisap2023.metrics.euc import euc
 
 
 def relu(X):
