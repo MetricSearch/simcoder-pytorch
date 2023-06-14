@@ -13,10 +13,10 @@ To encode the images:
 1. Download the data locally as described above.
 
 2. Run the encode command in the sisap2023 python package with the following command, replacing the directory arguments with your input and output directories.
+
 `bash
 python sisap2023 encode --dirs --format=mat INPUT_DIR OUTPUT_PATH dino2 [BATCH_SIZE]
 `
-
 To run the experiments:
 
 1. All experiments assume data is downloaded and encoded locally as described above.
@@ -47,3 +47,18 @@ To run the experiments:
     This notebook also contains:
         a. the results from all the 'good' runs of this notebook.
         b. the index,query,category and category string	of the queries used.
+
+The makefile has the following capabilities:
+
+    1. To create the venv call `make venv`
+
+    2. To populate the environment call `make environment`
+
+    3. To a docker image call `make docker_image`
+
+    4. To run the experiment call `make experiment`
+
+
+
+
+

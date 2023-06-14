@@ -7,8 +7,6 @@ from sisap2023.encoders.encode import encode
 from sisap2023.encoders.show import show
 from sisap2023.encoders.list_models import list_models
 from sisap2023.experiments.experiment import experiment
-from sisap2023.experiments.experiment_strict import experimentstrict
-from sisap2023.experiments.experimentselected import experimentselected
 
 
 # let's output the info
@@ -24,8 +22,6 @@ cli.add_command(encode)
 cli.add_command(show)
 cli.add_command(list_models)
 cli.add_command(experiment)
-cli.add_command(experimentstrict)
-cli.add_command(experimentselected)
 
 if __name__ == "__main__":
     mp.set_start_method("fork")

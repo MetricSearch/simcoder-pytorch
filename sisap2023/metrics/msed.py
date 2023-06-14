@@ -1,8 +1,7 @@
 import math
 import numpy as np
 from sisap2023.utils.distances import l1_norm, relu
-
-                 
+           
 def msed(X):
     X = relu(X)
     X = l1_norm(X)                                                      # X is no_datapoints,features, Relued and L1 normed.
@@ -20,7 +19,8 @@ def complexity(X):
     try:
         logs = np.log(X)                        # logs of shape no_datapoints,features
     except RuntimeWarning:                      # zero encountered - let it go (as per Disney)
-        pass
+        X[X == 0] = 1                           # replace all the zeros with ones - get rid of log errors
+        logs = np.log(X)
     hs = np.multiply(X,logs)                    # hs of shape no_datapoints,features
     cs = -np.nansum(hs, axis=1, keepdims=True)  # sum along the rows => cs is of shape no_datapoints,1
     C = np.exp(cs)                              # C is of shape matrix of no_datapoints,1
