@@ -30,6 +30,7 @@ class MSED:
         Args:
             base (np.array): The base vectors, a 2d array where each row represents a probability vector.
         """
+        print(np.sum(base, axis=1))
         assert np.all(np.isclose(np.sum(base, axis=1), 1.0)), "All rows must sum to 1. Normalised the data."
         assert np.all(base >= 0.0), "All values must be greater than or equal to zero. Remember to relu data."
         assert len(base.shape) == 2, "Base vectors must be a 2d array."
