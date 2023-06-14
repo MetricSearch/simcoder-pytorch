@@ -10,7 +10,7 @@ from sisap2023.encoders.models import get_model
 @click.argument("model_name")
 @click.option("--summary", '-s', is_flag=True, help="Show a summary of the network activations.")
 def show(model_name, summary):
-    logging.info("Welcome to Simcoder.")
+    logging.info("Welcome to sisap2023.")
     logging.info(f"Showing model: {model_name}")
     model, preprocess = get_model(model_name)
     print()

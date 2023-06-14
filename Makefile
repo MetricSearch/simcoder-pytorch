@@ -2,11 +2,11 @@
 # GLOBALS                                                                       #
 #################################################################################
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-PROJECT_NAME = simcoder-pytorch
+PROJECT_NAME = sisap2023-pytorch
 PWD := $(shell pwd)
 
 # docker options
-DOCKER_IMAGE_NAME = simcoder-pytorch
+DOCKER_IMAGE_NAME = sisap2023-pytorch
 
 # docker build process info
 LOCAL_USER = $(USER)
@@ -45,7 +45,7 @@ docker_run_tars_interactive:
 		--gpus all \
 		--name $(LOCAL_USER)-$(DOCKER_IMAGE_NAME)  \
 		--ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
-		-v /home/$(LOCAL_USER)/development/simcoder-pytorch:/workspace/${PROJECT_NAME} \
+		-v /home/$(LOCAL_USER)/development/sisap2023-pytorch:/workspace/${PROJECT_NAME} \
 		-v /scratch/dm236/mf/images:/input \
 		-v /scratch/dm236/mf_embeddings:/output \
 		-it $(DOCKER_IMAGE_NAME):latest
@@ -56,7 +56,7 @@ experiment:
 		--gpus all \
 		--name $(LOCAL_USER)-$(DOCKER_IMAGE_NAME) \
 		--ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
-		-v /home/$(LOCAL_USER)/repos/simcoder-pytorch:/workspace/repos/$(PROJECT_NAME) \
+		-v /home/$(LOCAL_USER)/repos/sisap2023-pytorch:/workspace/repos/$(PROJECT_NAME) \
 		-v /Volumes/Data:/Volumes/Data \
 		-it $(DOCKER_IMAGE_NAME):latest
 
@@ -71,5 +71,5 @@ run_batch:
 		-it $(DOCKER_IMAGE_NAME):latest \
 		/input /output --format=csv --chunksize=10000
 
-# python simcoder /input /output/mf_alexnet_fc6 alexnet_fc6 128 --dirs --format=csv
+# python sisap2023 /input /output/mf_alexnet_fc6 alexnet_fc6 128 --dirs --format=csv
 # --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \

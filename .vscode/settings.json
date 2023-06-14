@@ -4,6 +4,6 @@
     },
     "python.formatting.provider": "none",
     "python.analysis.extraPaths": [
-        "./simcoder"
+        "./sisap2023"
     ]
 }

@@ -5,7 +5,7 @@ LABEL maintainer="David Morrison"
 RUN pip install tqdm
 RUN pip install torchinfo
 
-COPY . /workspace/repos/simcoder-pytorch
+COPY . /workspace/repos/sisap2023-pytorch
 
-WORKDIR /workspace/repos/simcoder-pytorch
-# ENTRYPOINT [ "python", "simcoder" ]
+WORKDIR /workspace/repos/sisap2023-pytorch
+# ENTRYPOINT [ "python", "sisap2023" ]

@@ -24,7 +24,7 @@ To run the experiments:
     notebooks/pick_queries.ipynb also creates the imagenet_classes.txt file if it does not exist.
 
     This file was run as follows:
-    python -W ignore simcoder experiment /data/mirflickr/mf_dino2 /data/mirflickr/mf_alexnet_softmax/ /data/mirflickr/results/dino2_20/ 100 100 0 0.9
+    python -W ignore sisap2023 experiment /data/mirflickr/mf_dino2 /data/mirflickr/mf_alexnet_softmax/ /data/mirflickr/results/dino2_20/ 100 100 0 0.9
     The parameters documented in the code:
         0: encodings: the encodings directory
         1: softmax: the softmax encodings directory

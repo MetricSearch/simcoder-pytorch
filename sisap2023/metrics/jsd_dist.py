@@ -2,8 +2,8 @@
 import math
 import numpy as np
 
-# from simcoder.msed import msed
-# from simcoder.similarity import euclid
+# from sisap2023.msed import msed
+# from sisap2023.similarity import euclid
 
 def jsd_dist(A,B):
     """first param is an row - an array, second is matrix of rows (values)

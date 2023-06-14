@@ -45,7 +45,7 @@ def encode_images(model, preprocess, input_dir: Path, batch_size: int, device: s
     help="output format",
 )
 def encode(input_dir, output_path, model_name, batch_size, dirs, format):
-    logging.info("Welcome to Simcoder.")
+    logging.info("Welcome to sisap2023.")
 
     Path(output_path).mkdir()
 
