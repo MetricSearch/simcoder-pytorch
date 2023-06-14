@@ -30,14 +30,15 @@ class MSED:
         Args:
             base (np.array): The base vectors, a 2d array where each row represents a probability vector.
         """
-        assert np.all(np.isclose(np.sum(base, axis=1), 1.0)), "All rows must sum to 1."
+        assert np.all(np.isclose(np.sum(base, axis=1), 1.0)), "All rows must sum to 1. Normalised the data."
+        assert np.all(base >= 0.0), "All values must be greater than or equal to zero. Remember to relu data."
         assert len(base.shape) == 2, "Base vectors must be a 2d array."
 
         self.num_vecs = base.shape[0]
         self.sums_of_vecs = np.sum(base, axis=0, keepdims=True)
         self.prod_of_vec_comp = np.product(complexity(base))
 
-    def __call__(self, queries: np.array) -> np.array:
+    def query(self, queries: np.array) -> np.array:
         """Compute the multiway structural entropic divergence for the given queries.
 
         Args:
@@ -46,6 +47,10 @@ class MSED:
         Returns:
             np.array: The computed multiway structural entropic divergence for each query.
         """
+        assert np.all(np.isclose(np.sum(queries, axis=1), 1.0)), "All rows must sum to 1. Normalised the data."
+        assert np.all(queries >= 0.0), "All values must be greater than or equal to zero. Remember to relu data."
+        assert len(queries.shape) == 2, "Base vectors must be a 2d array."
+
         num_vecs = self.num_vecs + 1
 
         # compute the numerator
@@ -73,5 +78,5 @@ if __name__ == "__main__":
     base = np.array([[0.2, 0.6, 0.2], [0.1, 0.7, 0.2], [0.2, 0.5, 0.3]])
     data = np.array([[0.2, 0.5, 0.3], [0.2, 0.7, 0.1]])
     msed = MSED(base)
-    res = msed(data)
+    res = msed.query(data)
     print(res)

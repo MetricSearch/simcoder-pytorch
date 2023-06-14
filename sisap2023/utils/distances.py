@@ -1,6 +1,7 @@
 import math
 import numpy as np
 from sisap2023.metrics.euc import euc
+from sisap2023.metrics.euc import euc
 
 def relu(X):
     return np.maximum(0,X)
