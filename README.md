@@ -10,7 +10,12 @@ Encodings supported: Alexnet, Alexnet_softmax, Alexnet_fc6, Resnet50/18, Resnet5
 
 To encode the images:
 
-TODO need info from David
+1. Download the data locally as described above.
+
+2. Run the encode command in the sisap2023 python package with the following command, replacing the directory arguments with your input and output directories.
+`bash
+python sisap2023 encode --dirs --format=mat INPUT_DIR OUTPUT_PATH dino2 [BATCH_SIZE]
+`
 
 To run the experiments:
 
