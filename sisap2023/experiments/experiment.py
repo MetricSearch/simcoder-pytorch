@@ -21,7 +21,7 @@ from sisap2023.utils.count_cats import (
 )
 from sisap2023.utils.mirflickr import load_encodings
 from sisap2023.metrics.euc import euc_scalar
-from sisap2023.metrics.msedOO import msedOO
+from sisap2023.metrics.msed_class import MSED
 from sisap2023.metrics.msed import msed
 from sisap2023.metrics.nsimplex import NSimplex, fromSimplexPoint
 from sisap2023.metrics.jsd_dist import jsd_dist
@@ -220,8 +220,8 @@ def run_msed(idx: int):
     normed_data = l1_norm(relued)
     poly_query_data = normed_data[poly_query_indexes]
 
-    base = msedOO(np.array(poly_query_data))
-    msed_results = base.msed(normed_data)
+    base = MSED(np.array(poly_query_data))
+    msed_results = base.query(normed_data)
     msed_results = msed_results.flatten()
 
     return compute_results(idx, msed_results)
