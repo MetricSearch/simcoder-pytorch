@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import math
+import time
 
 from typing import List, Tuple
 from pathlib import Path
@@ -312,6 +313,9 @@ def experimentselected(
     global category_names
     global best_k_for_queries
 
+    # init the timing values
+    start, proc_start = time.time(), time.process_time()
+
     print("Running experimentselected.")
     print(f"encodings: {encodings}")
     print(f"softmax: {softmax}")
@@ -358,3 +362,7 @@ def experimentselected(
     run_experiment(run_cos, "cos", output_path)
     run_experiment(run_sed, "sed", output_path)
     run_experiment(run_jsd, "jsd", output_path)
+
+    # add the timing
+    delta, proc_delta = time.time() - start, time.process_time() - proc_start
+    print(f"{delta:.2f}s total, {proc_delta:.2f}s on the CPU.")

@@ -29,7 +29,4 @@ cli.add_command(experimentselected)
 
 if __name__ == "__main__":
     mp.set_start_method("fork")
-    start, proc_start = time.time(), time.process_time()
     cli(prog_name="sisap2023")
-    delta, proc_delta = time.time() - start, time.process_time() - proc_start
-    logging.info(f"{delta:.2f}s total, {proc_delta:.2f}s on the CPU.")
