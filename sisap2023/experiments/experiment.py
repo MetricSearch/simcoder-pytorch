@@ -11,6 +11,8 @@ import numpy as np
 import pandas as pd
 
 from scipy.spatial.distance import pdist, squareform
+# from sisap2023.metrics.msedOO import msedOO
+from sisap2023.metrics.msed_class import MSED
 from sisap2023.utils.distances import get_dists, l1_norm, l2_norm, relu
 from sisap2023.utils.count_cats import (
     count_number_in_cat_gt_thresh,
@@ -21,7 +23,6 @@ from sisap2023.utils.count_cats import (
 )
 from sisap2023.utils.mirflickr import load_encodings
 from sisap2023.metrics.euc import euc_scalar
-from sisap2023.metrics.msedOO import msedOO
 from sisap2023.metrics.msed import msed
 from sisap2023.metrics.nsimplex import NSimplex, fromSimplexPoint
 from sisap2023.metrics.jsd_dist import jsd_dist
@@ -220,8 +221,8 @@ def run_msed(idx: int):
     normed_data = l1_norm(relued)
     poly_query_data = normed_data[poly_query_indexes]
 
-    base = msedOO(np.array(poly_query_data))
-    msed_results = base.msed(normed_data)
+    base = MSED(poly_query_data)
+    msed_results = base.query(normed_data)
     msed_results = msed_results.flatten()
 
     return compute_results(idx, msed_results)
@@ -292,7 +293,7 @@ def load_imagenet_class_labels() -> List[str]:
 @click.argument("k", type=click.INT)
 @click.argument("initial_query_index", type=click.INT)
 @click.argument("thresh", type=click.FLOAT)
-@click.option("--use_selected_queries", "-sq", is_flag=True, help="Use preselected query categories.")
+@click.option("--use_preselected_queries", "-sq", is_flag=True, help="Use preselected query categories.")
 def experiment(
     encodings: str,
     softmax: str,
@@ -301,7 +302,7 @@ def experiment(
     k: int,
     initial_query_index: int,
     thresh: float,
-    use_selected_queries: bool
+    use_preselected_queries: bool
 ):
     # These are all globals so that they can be shared by the parallel instances
 
@@ -325,7 +326,7 @@ def experiment(
     print(f"k: {k}")
     print(f"initial_query_index: {initial_query_index}")
     print(f"thresh: {thresh}")
-    print(f"use selected queries: {use_selected_queries}")
+    print(f"use selected queries: {use_preselected_queries}")
 
     # Initialisation of globals
 
@@ -339,16 +340,18 @@ def experiment(
     nn_at_which_k = k
     threshold = thresh
 
-    # at least 80 and at most 195 - 101 cats sm values for resnet_50
-    print("Finding highly categorised categories.")
-    top_categories, _ = find_cats_with_count_more_than_less_than(100, 184, sm_data, threshold)
-    top_categories = top_categories[0:number_of_categories_to_test]  # subset the top categories
-
-    if use_selected_queries:
+    if use_preselected_queries:
         print("Using preselected queries.")
-        with open("selected_queries.txt", "r") as f:
-            queries = [int(line.strip()) for line in f]
+        cats_and_queries = np.loadtxt("selected_queries.csv", delimiter=",", dtype=int)
+        print(cats_and_queries)
+        top_categories = cats_and_queries[:,0]
+        queries = cats_and_queries[:,1]
     else:
+        # at least 80 and at most 195 - 101 cats sm values for resnet_50
+        print("Finding highly categorised categories.")
+        top_categories, _ = find_cats_with_count_more_than_less_than(100, 184, sm_data, threshold)
+        top_categories = top_categories[0:number_of_categories_to_test]  # subset the top categories
+
         # get one query in each categories
         print(f"Finding {initial_query_index} categorical query for each category.")
         queries = get_nth_categorical_query(top_categories, sm_data, initial_query_index)

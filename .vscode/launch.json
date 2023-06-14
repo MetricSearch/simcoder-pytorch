@@ -13,19 +13,19 @@
             "justMyCode": true
         },
         {
-            "name": "experimentselected",
+            "name": "experiment",
             "type": "python",
             "request": "launch",
             "program": "/Users/dm236/development/sisap2023/sisap2023",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "experimentselected",
+                "experiment",
                 "/Users/dm236/data/mf_dino2",
                 "/Users/dm236/data/mf_resnet50_softmax/",
                 "/Users/dm236/data/results/dino2_20/",
-                "1",
-                "8",
+                "100",
+                "100",
                 "0",
                 "0.9"
             ]
