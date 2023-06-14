@@ -344,7 +344,6 @@ def experiment(
     if use_preselected_queries:
         print("Using preselected queries.")
         cats_and_queries = np.loadtxt("selected_queries.csv", delimiter=",", dtype=int)
-        print(cats_and_queries)
         top_categories = cats_and_queries[:,0]
         queries = cats_and_queries[:,1]
     else:
