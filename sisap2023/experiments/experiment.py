@@ -13,7 +13,7 @@ import pandas as pd
 from scipy.spatial.distance import pdist, squareform
 # from sisap2023.metrics.msedOO import msedOO
 from sisap2023.metrics.msed_class import MSED
-from sisap2023.utils.distances import get_dists, l1_norm, l2_norm, relu
+from sisap2023.utils.distances import get_euc_dists, l1_norm, l2_norm, relu
 from sisap2023.utils.count_cats import (
     count_number_in_cat_gt_thresh,
     count_number_in_results_cated_as,
@@ -104,7 +104,7 @@ def run_cos(idx: int):
     """This runs an experiment finding the NNs using cosine distance"""
     query = queries[idx]
     normed_data = l2_norm(data)
-    distances = get_dists(query, normed_data)  # cosine distance same order as l2 norm of data
+    distances = get_euc_dists(query, normed_data)  # cosine distance same order as l2 norm of data
     return compute_results(idx, distances)
 
 
@@ -135,7 +135,7 @@ def run_mean_point(idx: int):
     # poly_query_distances is the distances from the queries to the all data
     poly_query_distances = np.zeros((num_poly_queries, 1000 * 1000))
     for j in range(num_poly_queries):
-        poly_query_distances[j] = get_dists(poly_query_indexes[j], data)
+        poly_query_distances[j] = get_euc_dists(poly_query_indexes[j], data)
 
     # next line from Italian documentation: README.md line 25
     # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
@@ -159,7 +159,7 @@ def run_perfect_point(idx: int):
     # poly_query_distances is the distances from the queries to the all data
     poly_query_distances = np.zeros((num_poly_queries, 1000 * 1000))
     for j in range(num_poly_queries):
-        poly_query_distances[j] = get_dists(poly_query_indexes[j], data)
+        poly_query_distances[j] = get_euc_dists(poly_query_indexes[j], data)
 
     # Here we will use some estimate of the nn distance to each query to construct a
     # new point in the nSimplex projection space formed by the poly query objects
@@ -184,7 +184,7 @@ def run_average(idx: int):
 
     poly_query_distances = np.zeros((num_poly_queries, 1000 * 1000))
     for j in range(num_poly_queries):
-        poly_query_distances[j] = get_dists(poly_query_indexes[j], data)
+        poly_query_distances[j] = get_euc_dists(poly_query_indexes[j], data)
 
     distances = np.sum(poly_query_distances, axis=0)
     return compute_results(idx, distances)
@@ -197,7 +197,7 @@ def run_simplex(idx: int):
     # poly_query_distances is the distances from the queries to the all data
     poly_query_distances = np.zeros((num_poly_queries, 1000 * 1000))
     for j in range(num_poly_queries):
-        poly_query_distances[j] = get_dists(poly_query_indexes[j], data)
+        poly_query_distances[j] = get_euc_dists(poly_query_indexes[j], data)
 
     # pivot-pivot distance matrix with shape (n_pivots, n_pivots)
     inter_pivot_distances = squareform(pdist(poly_query_data, metric=euc_scalar))
@@ -274,7 +274,7 @@ def run_experiment(the_func, experiment_name: str, output_path: str):
 
 def compute_best_k_for_queries(queries: List[int], k: int):
     def closest(query):
-        dists = get_dists(query, data)
+        dists = get_euc_dists(query, data)
         closest_indices = np.argsort(dists)
         return closest_indices[0:k]
 

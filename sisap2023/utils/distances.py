@@ -1,6 +1,4 @@
-import math
 import numpy as np
-from sisap2023.metrics.euc import euc
 from sisap2023.metrics.euc import euc
 
 def relu(X):
@@ -18,9 +16,9 @@ def l2_norm(X):
     X = np.divide(X.T,factor).T
     return X
 
-def get_dists(query_index,allData):
+def get_euc_dists(query_index, data):
     '''Return the distances from the query to allData'''
     '''Returns an array same dimension as allData of scalars'''
-    mf_query_data = allData[query_index]
-    distances = euc(mf_query_data, allData)
+    mf_query_data = data[query_index]
+    distances = euc(mf_query_data, data)
     return distances
