@@ -3,7 +3,7 @@ import warnings
 import numpy as np
 from tqdm import trange
 
-from sisap2023.utils.distances import euc_scalar
+from sisap2023.metrics.euc import euc_scalar
 
 
 class NSimplex (object):
