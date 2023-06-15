@@ -30,7 +30,6 @@ class MSED:
         Args:
             base (np.array): The base vectors, a 2d array where each row represents a probability vector.
         """
-        print(np.sum(base, axis=1))
         assert np.all(np.isclose(np.sum(base, axis=1), 1.0)), "All rows must sum to 1. Normalised the data."
         assert np.all(base >= 0.0), "All values must be greater than or equal to zero. Remember to relu data."
         assert len(base.shape) == 2, "Base vectors must be a 2d array."
@@ -73,11 +72,3 @@ class MSED:
         # scale the result to 0.0-1.0
         res = (res - 1) / (num_vecs - 1)
         return res
-
-
-if __name__ == "__main__":
-    base = np.array([[0.2, 0.6, 0.2], [0.1, 0.7, 0.2], [0.2, 0.5, 0.3]])
-    data = np.array([[0.2, 0.5, 0.3], [0.2, 0.7, 0.1]])
-    msed = MSED(base)
-    res = msed.query(data)
-    print(res)
