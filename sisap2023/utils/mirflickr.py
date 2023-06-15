@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,11 +18,14 @@ def set_mf_images_path(path: Path) -> None:
     assert path.exists(), "Path to mf images does not exist."
     mf_dir = path
 
-def get_mf_image(index: int) -> Image.Image:
+def get_mf_image(index: int, size: Tuple[int, int] = None) -> Image.Image:
     assert mf_dir, "mf_dir is not set. Please set it to a Path to the mf images."
     folder_idx = index // IMAGE_FILES_PER_FOLDER
     path = mf_dir / str(folder_idx) / f"{index}.jpg"
     img = default_loader(str(path))
+    if size:
+        assert len(size) == 2, "Size tuple must have two elements."
+        img = img.resize(size)
     return img
 
 def make_mf_image_grid(
