@@ -4,7 +4,7 @@ import numpy as np
 def complexity(X):
     """ returns a column vector with each  cell is the complexity of the rows of X"""
     # X is of shape no_datapoints,features
-    X[X == 0] = 1                               # replace all the zeros with ones - get rid of log errors
+    X = np.where(X == 0, 1, X)                     # replace all 0s with 1s to avoid log warnings
     logs = np.log(X)                            # logs of shape no_of_objects,features
     hs = np.multiply(X,logs)                    # hs of shape no_of_objects,features print(f"hs {hs.shape}")
     cs = -np.nansum(hs, axis=1, keepdims=True)  # sum of x.logx along the rows => cs is of shape no_of_objects,1
