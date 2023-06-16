@@ -8,7 +8,7 @@ To download the data:
 
 Encodings supported: Alexnet, Alexnet_softmax, Alexnet_fc6, Resnet50/18, Resnet50/18_softmax, Dino2
 
-To encode the images:
+## To encode the images:
 
 1. Download the data locally as described above.
 
@@ -17,7 +17,8 @@ To encode the images:
 `bash
 python sisap2023 encode --dirs --format=mat INPUT_DIR OUTPUT_PATH dino2 [BATCH_SIZE]
 `
-To run the experiments:
+
+## To run the experiments:
 
 1. All experiments assume data is downloaded and encoded locally as described above.
 
