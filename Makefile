@@ -6,7 +6,7 @@ PROJECT_NAME = sisap2023-pytorch
 PWD := $(shell pwd)
 
 # docker options
-DOCKER_IMAGE_NAME = sisap2023-pytorch
+DOCKER_IMAGE_NAME = sisap2023
 
 # docker build process info
 LOCAL_USER = $(USER)
