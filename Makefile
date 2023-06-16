@@ -62,4 +62,4 @@ experiment:
 		-v /home/$(LOCAL_USER)/repos/sisap2023:/workspace/repos/$(PROJECT_NAME) \
 		-v /Volumes/Data:/Volumes/Data \
 		-it $(DOCKER_IMAGE_NAME):latest \
-		python sisap2023 experiment ---use_preselected_queries /Volumes/Data/mf_dino2 /Volumes/Data/mf_resnet19_softmax /Volumes/Data/reported_results 100 100 0 0.9
+		python sisap2023 experiment --use_preselected_queries /Volumes/Data/mf_dino2 /Volumes/Data/mf_resnet19_softmax /Volumes/Data/reported_results 100 100 0 0.9
