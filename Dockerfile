@@ -2,10 +2,9 @@ FROM nvcr.io/nvidia/pytorch:23.02-py3
 
 LABEL maintainer="David Morrison"
 
-RUN pip install tqdm
-RUN pip install torchinfo
+COPY . /workspace/repos/sisap2023
+RUN make environment
+WORKDIR /workspace/repos/sisap2023
 
-COPY . /workspace/repos/sisap2023-pytorch
-
-WORKDIR /workspace/repos/sisap2023-pytorch
-# ENTRYPOINT [ "python", "sisap2023" ]
+# add the venv to the path
+ENV PATH="/workspace/repos/sisap2023/venv/bin:$PATH"
