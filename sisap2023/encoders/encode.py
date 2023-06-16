@@ -5,6 +5,7 @@ import click
 import numpy as np
 from scipy.io import savemat
 from tqdm import tqdm
+import multiprocessing as mp
 from pprint import pprint
 import torch
 from torch.utils.data import DataLoader
@@ -24,9 +25,9 @@ def save_features(arr: np.array, path: Path, format: str) -> None:
     elif format == "mat":
         savemat(path, {"features": arr, "label": "embeddings"})
 
-def encode_images(model, preprocess, input_dir: Path, batch_size: int, device: str) -> np.array:
+def encode_images(model, preprocess, input_dir: Path, batch_size: int, device: str, num_workers: int) -> np.array:
     dataset = UnlabelledImageFolder(input_dir, preprocess)
-    loader = DataLoader(dataset, batch_size, num_workers=128)
+    loader = DataLoader(dataset, batch_size, num_workers=num_workers)
     with torch.no_grad():
         features = [model(xs.to(device)).detach().cpu().numpy() for xs in tqdm(loader)]
     return np.concatenate(features)
@@ -68,10 +69,14 @@ def encode(input_dir, output_path, model_name, batch_size, dirs, format):
     model.eval()  # set the model into evaluation mode
     logging.info(model)
 
+    # "huristic" to compute the number of loader workers
+    num_workers = max(mp.cpu_count() // 2, 1)
+    logging.info(f"Loader will use {num_workers} workers.")
+
     # iterate over the input dirs, encoding and outputting to disk
     for image_dir in image_dirs:
         logging.info(f"Encoding {image_dir}")
-        features = encode_images(model, preprocess, image_dir, batch_size, device)
+        features = encode_images(model, preprocess, image_dir, batch_size, device, num_workers)
         filepath = Path(output_path, image_dir.stem).with_suffix(f".{format}")
         logging.info(f"Saving embeddings to {filepath}.")
         save_features(features, filepath, format)

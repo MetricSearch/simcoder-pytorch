@@ -51,15 +51,8 @@ python sisap2023 encode --dirs --format=mat INPUT_DIR OUTPUT_PATH dino2 [BATCH_S
 
 The makefile has the following capabilities:
 
-    1. To create the venv call `make venv`
+    1. To create and populate the virtual environment call `make environment`
 
-    2. To populate the environment call `make environment`
+    2. To a docker image call `make image`
 
-    3. To a docker image call `make docker_image`
-
-    4. To run the experiment call `make experiment`
-
-
-
-
-
+    3. To run the experiment call `make experiment`

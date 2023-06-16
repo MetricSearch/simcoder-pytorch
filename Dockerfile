@@ -11,7 +11,6 @@ RUN apt update \
 COPY . /workspace/repos/sisap2023
 WORKDIR /workspace/repos/sisap2023
 RUN make environment
-RUN mkdir /workspace/repos/sisap2023/model_cache
 
 # add the venv to the path
 ENV PATH="/workspace/repos/sisap2023/venv/bin:$PATH"
