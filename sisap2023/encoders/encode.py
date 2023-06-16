@@ -47,7 +47,7 @@ def encode_images(model, preprocess, input_dir: Path, batch_size: int, device: s
 def encode(input_dir, output_path, model_name, batch_size, dirs, format):
     logging.info("Welcome to sisap2023.")
 
-    Path(output_path).mkdir()
+    Path(output_path).mkdir(parents=True, exist_ok=True)
 
     # find all the directories to look for images in
     if dirs:

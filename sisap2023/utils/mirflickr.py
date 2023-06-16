@@ -1,14 +1,10 @@
 from pathlib import Path
 from typing import Tuple
 
-import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 from torchvision.datasets.folder import default_loader
 from scipy.io import loadmat
-import torch
-
-from sisap2023.encoders.models import get_model
 
 IMAGE_FILES_PER_FOLDER = 10000
 mf_dir = None

@@ -9,7 +9,6 @@ import torch.nn.functional as F
 from torchvision.models import AlexNet_Weights
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
 
-
 def get_image_net_preprocessor():
     return Compose(
         [

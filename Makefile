@@ -25,7 +25,7 @@ environment:
 #################################################################################
 # CONTAINER COMMANDS                                                            #
 #################################################################################
-docker_image:
+image:
 	docker build -t $(DOCKER_IMAGE_NAME) .
 
 # run the container and attach a shell so we can run the code interactively
@@ -45,8 +45,7 @@ encode:
 	docker run \
 		--rm \
 		--gpus all \
-		-u $(LOCAL_UID):$(LOCAL_GID) \
-		--name $(LOCAL_USER)-$(DOCKER_IMAGE_NAME) \
+		--name $(DOCKER_IMAGE_NAME) \
 		-v /home/$(LOCAL_USER)/repos/sisap2023:/workspace/repos/$(PROJECT_NAME) \
 		-v /Volumes/Data:/Volumes/Data \
 		$(DOCKER_IMAGE_NAME):latest \
@@ -57,8 +56,7 @@ experiment:
 	docker run \
 		--rm \
 		--gpus all \
-		-u $(LOCAL_UID):$(LOCAL_GID) \
-		--name $(LOCAL_USER)-$(DOCKER_IMAGE_NAME) \
+		--name $(DOCKER_IMAGE_NAME) \
 		-v /home/$(LOCAL_USER)/repos/sisap2023:/workspace/repos/$(PROJECT_NAME) \
 		-v /Volumes/Data:/Volumes/Data \
 		-it $(DOCKER_IMAGE_NAME):latest \
